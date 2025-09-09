@@ -1,0 +1,56 @@
+From 8dea7f74bddfe5795719778d7cf5f9566b9d0a81 Mon Sep 17 00:00:00 2001
+From: kas User <kas@example.com>
+Date: Sat, 30 Aug 2025 02:22:37 +0000
+Subject: [PATCH 1/1] fix gi_dir host bleeding
+
+Signed-off-by: kas User <kas@example.com>
+---
+ libxfce4util/Makefile.am | 5 ++++-
+ libxfce4util/Makefile.in | 8 +++++++-
+ 2 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/libxfce4util/Makefile.am b/libxfce4util/Makefile.am
+index fef1ec9..40b448e 100644
+--- a/libxfce4util/Makefile.am
++++ b/libxfce4util/Makefile.am
+@@ -171,7 +171,10 @@ libxfce4util-1.0.vapi: Libxfce4util-1.0.gir
+ 
+ VAPIGEN_DEPS = gio-2.0
+ VAPIGEN_VAPIS = libxfce4util-1.0.vapi
+-VAPIGEN_GIRDIRS = $(prefix)/share/gir-1.0
++VAPIGEN_GIRDIRS = @INTROSPECTION_GIRDIR@
++
++# Ensure we use the tool detected by configure (native/cross wrapper)
++VAPIGEN = @VAPIGEN@
+ 
+ ## libxfce4util_1_0_vapi_DEPS = libxfce4util-1.0
+ libxfce4util_1_0_vapi_METADATADIRS = $(srcdir)
+diff --git a/libxfce4util/Makefile.in b/libxfce4util/Makefile.in
+index 1dcb04a..4b5f621 100644
+--- a/libxfce4util/Makefile.in
++++ b/libxfce4util/Makefile.in
+@@ -729,6 +729,10 @@ INTROSPECTION_COMPILER_ARGS = \
+ @HAVE_INTROSPECTION_TRUE@Libxfce4util_1_0_gir_LIBS = libxfce4util.la
+ @HAVE_INTROSPECTION_TRUE@Libxfce4util_1_0_gir_FILES = $(introspection_sources)
+ @HAVE_INTROSPECTION_TRUE@Libxfce4util_1_0_gir_EXPORT_PACKAGES = libxfce4util-1.0
++
++# pull in from env needed because of sysroot vs host 
++@HAVE_INTROSPECTION_TRUE@INTROSPECTION_SCANNER_ENV = $(GI_SCANNER_ENV)
++
+ @HAVE_INTROSPECTION_TRUE@girdir = $(datadir)/gir-1.0
+ @HAVE_INTROSPECTION_TRUE@gir_DATA = $(INTROSPECTION_GIRS)
+ @HAVE_INTROSPECTION_TRUE@typelibdir = $(libdir)/girepository-1.0
+@@ -748,7 +752,9 @@ EXTRA_DIST = \
+ 
+ @ENABLE_VAPIGEN_TRUE@VAPIGEN_DEPS = gio-2.0
+ @ENABLE_VAPIGEN_TRUE@VAPIGEN_VAPIS = libxfce4util-1.0.vapi
+-@ENABLE_VAPIGEN_TRUE@VAPIGEN_GIRDIRS = $(prefix)/share/gir-1.0
++## use girdir
++@ENABLE_VAPIGEN_TRUE@VAPIGEN_GIRDIRS = $(girdir)
++# @ENABLE_VAPIGEN_TRUE@VAPIGEN_GIRDIRS = $(prefix)/share/gir-1.0
+ @ENABLE_VAPIGEN_TRUE@libxfce4util_1_0_vapi_METADATADIRS = $(srcdir)
+ @ENABLE_VAPIGEN_TRUE@libxfce4util_1_0_vapi_FILES = Libxfce4util-1.0.gir
+ @ENABLE_VAPIGEN_TRUE@vapidir = $(datadir)/vala/vapi
+-- 
+2.50.1
+

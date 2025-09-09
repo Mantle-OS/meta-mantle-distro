@@ -1,0 +1,75 @@
+#!/bin/sh
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+target=""
+wic_file=""
+
+touch /etc/fstab
+mkdir -p /proc /sys /run/lock /var/lock
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+
+efi_dir=/sys/firmware/efi
+if [ -d $efi_dir ];then
+    mount -t efivarfs none /sys/firmware/efi/efivars
+fi
+
+if grep -q devtmpfs /proc/filesystems; then
+    mkdir -p /dev
+    mount -t devtmpfs devtmpfs /dev
+else
+    if [ ! -d /dev ]; then
+        echo "ERROR: /dev doesn't exist and kernel doesn't has devtmpfs enabled."
+        exec sh
+    fi
+fi
+mkdir -p /run
+mkdir -p /var/run
+
+udevd --daemon
+udevadm trigger --action=add
+udevadm settle
+
+modprobe isofs 2> /dev/null
+modprobe i915  2> /dev/null
+
+filesystems="ext4 ext3 ext2"
+for fs in $filesystems; do
+    modprobe $fs >/dev/null 2>&1
+done
+for fs in $filesystems; do
+    eval "fs_options=\$bootparam_${fs}"
+    if [ -n "$fs_options" ]; then
+        dev=`expr "$fs_options" : '\([^:]*\).*'`
+        path=`expr "$fs_options" : '[^:]*:\([^:]*\).*'`
+
+        echo "Mounting $dev as $fs on $path as $fs..."
+        mkdir -p $path
+        mount -t $fs $dev $path
+    fi
+done
+
+sleep 1
+# Run the installer script
+/bin/install-efi-wic
+ret=$?
+
+if [ "$ret" -eq 0 ]; then
+    printf "\033c"
+    echo "===================-===================-===================-==================="
+    echo "                         Installation successful.                             "
+    echo "              Remove your installation media and press ENTER to reboot."
+    echo "===================-===================-===================-==================="
+    read enter
+    echo "Rebooting..."
+    reboot -f
+else
+    printf "\033c"
+    echo "Installer failed (exit code $ret). "
+    echo "Dropping to shell."
+    exec sh
+fi
+
+# Failsafe
+exec sh
+

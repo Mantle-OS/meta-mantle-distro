@@ -1,0 +1,14 @@
+[Unit]
+Description=Synchronize System and HW clocks
+DefaultDependencies=no
+Wants=sysinit.target
+Conflicts=shutdown.target
+After=getty.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/hwclock --systohc
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
