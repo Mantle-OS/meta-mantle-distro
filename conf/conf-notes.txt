@@ -1,0 +1,4 @@
+Common targets are:
+    mantle-image (core image)
+    mantle-image-docker  (core image built for docker import)
+    mantle-image-installer (offline installer)

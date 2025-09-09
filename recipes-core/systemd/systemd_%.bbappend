@@ -1,0 +1,41 @@
+PR:append = ".mantle1"
+
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+
+PACKAGECONFIG:append = " networkd resolved"
+USERADD_PARAM:${PN} += "--system -d / -M --shell /bin/nologin systemd-network;"
+USERADD_PARAM:${PN} += "--system -d / -M --shell /bin/nologin systemd-resolve;"
+
+SRC_URI:append = " \
+    file://local.rules \
+    file://10-eth.network \
+    file://15-eth.network \
+    file://30-wlan.network \
+    file://80-can.network \
+    file://60-usb.network \
+    file://sync-clocks.service \
+"
+
+do_install:append() {
+    install -d ${D}${sysconfdir}/udev/rules.d/
+    install -m 0644 ${WORKDIR}/local.rules ${D}${sysconfdir}/udev/rules.d/
+
+    install -d ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${WORKDIR}/10-eth.network ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${WORKDIR}/15-eth.network ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${WORKDIR}/30-wlan.network ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${WORKDIR}/60-usb.network ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${WORKDIR}/80-can.network ${D}${sysconfdir}/systemd/network/
+
+    install -d ${D}${sysconfdir}/systemd/system/sysinit.target.wants
+    install -m 0644 ${WORKDIR}/sync-clocks.service ${D}${sysconfdir}/systemd/system/
+    ln -sf ../sync-clocks.service ${D}${sysconfdir}/systemd/system/sysinit.target.wants/sync-clocks.service
+
+    # Allow automount from udev
+    install -m 0644 ${D}${systemd_system_unitdir}/systemd-udevd.service ${D}${sysconfdir}/systemd/system/
+    sed -i 's/MountFlags=slave/MountFlags=shared/g' ${D}${sysconfdir}/systemd/system/systemd-udevd.service
+
+    # Need NAMESPACES enabled in the kernel, workaround for now
+    install -m 0644 ${D}${systemd_system_unitdir}/systemd-hostnamed.service ${D}${sysconfdir}/systemd/system/
+    sed -i 's/PrivateNetwork=yes/PrivateNetwork=no/g' ${D}${sysconfdir}/systemd/system/systemd-hostnamed.service
+}
