@@ -22,7 +22,7 @@ ROOTFS_POSTPROCESS_COMMAND := "usb_post;"
 PACKAGE_INSTALL = "\
     base-passwd \
     busybox busybox-udhcpc \
-    eudev \
+    udev \
     initramfs-module-install-efi-wic \
     ldconfig \
     shadow shadow-base shadow-securetty \
