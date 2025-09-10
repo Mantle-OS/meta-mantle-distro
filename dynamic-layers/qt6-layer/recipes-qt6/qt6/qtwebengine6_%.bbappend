@@ -1,4 +1,3 @@
 PACKAGECONFIG += " \
     proprietary-codecs \
 "
-

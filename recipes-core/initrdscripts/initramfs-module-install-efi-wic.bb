@@ -37,3 +37,5 @@ FILES:${PN} = "\
     /init \
     /dev/console \
 "
+
+INSANE_SKIP += " usrmerge"
