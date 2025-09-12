@@ -17,10 +17,10 @@
 * Vala: fully supported | poky
 * Haskell: Not sure I can not find much info on this.
 * OCaml: swig is supported
-* Erlang: unsupported look into meta-erlang
-* Elixir: meta-erlang look into
+* Erlang: fully supported via meta-erlang
+* Elixir: fully supported via meta-erlang
 * Prolog: Not sure
-* Common Lisp: fully supported
+* Common Lisp: fully supported | poky
 * Scheme (Guile): unsure maybe swig or meta-luv
 * Racket: unsupported
 * Emacs Lisp: Funny I can not find anything on lisp for yocto
