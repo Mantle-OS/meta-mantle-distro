@@ -1,0 +1,43 @@
+From d46eba2fe48e0358b9977af00ae9adc90dba14b2 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Fri, 12 Sep 2025 03:27:18 +0000
+Subject: [PATCH] fix install perl madness
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ binarize-desc.pl | 3 +--
+ genprefixes.pl   | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/binarize-desc.pl b/binarize-desc.pl
+index dbf0b1c..b5c7531 100755
+--- a/binarize-desc.pl
++++ b/binarize-desc.pl
+@@ -5,11 +5,10 @@
+ # into binary data.
+ # Usage: cat dict1 dict2 ... | binarize-desc.pl > dict_bin_out
+ #
++use FindBin; require "$FindBin::Bin/PrefixBits.pl";
+ 
+ use Carp;
+ 
+-require "PrefixBits.pl";
+-
+ # "perl -w" warns about variables only used once (it assumes they are a
+ # typo). This ugliness gets rid of this warning. Is there a more sensible way?
+ ($PS_L,$PS_B,$PS_VERB,$PS_NONDEF,$PS_IMPER,$PS_MISC)=
+diff --git a/genprefixes.pl b/genprefixes.pl
+index 450a7ca..948ad9b 100755
+--- a/genprefixes.pl
++++ b/genprefixes.pl
+@@ -1,6 +1,5 @@
+ #!/usr/bin/perl -w
+-
+-require "PrefixBits.pl";
++use FindBin; require "$FindBin::Bin/PrefixBits.pl";
+ 
+ sub find_prefixes {
+ 	my $INQUISITIVE_HE=shift;
+-- 
+2.51.0
+

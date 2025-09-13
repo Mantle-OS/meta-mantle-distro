@@ -1,5 +1,9 @@
 # Mantle OS – Distro Status (Pre Alpha)
 
+* Backpoorts for wayland(and friends + libdisplay-info + hwdata) are due to kde "my way or no way"
+
+
+
 ## Supported Programming Languages
 * C : fully supported | poky
 * C++ : fully supported | poky

@@ -1,0 +1,161 @@
+From 711bfe3e21b9dc3b0845fb055c952b5c6380f2dc Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Fri, 12 Sep 2025 02:34:23 +0000
+Subject: [PATCH] bring in debian patches
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ Makefile.in |  6 +++---
+ WHATSNEW    | 12 ++++++------
+ hspell.1    |  6 +++---
+ hspell.3    |  4 ++--
+ test/test1  |  6 +++---
+ 5 files changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 3aad812..754cc22 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -142,9 +142,9 @@ install: all
+ 	test -d $(DESTDIR)$(INCLUDEDIR) || mkdir -m 755 -p $(DESTDIR)$(INCLUDEDIR)
+ 	cp hspell.h linginfo.h $(DESTDIR)$(INCLUDEDIR)/
+ 	chmod 644 $(DESTDIR)$(INCLUDEDIR)/hspell.h $(DESTDIR)$(INCLUDEDIR)/linginfo.h
+-	test -f libhspell.so.0 && cp libhspell.so.0 $(DESTDIR)$(LIBDIR)/
+-	test -f libhspell.so.0 && chmod 755 $(DESTDIR)$(LIBDIR)/libhspell.so.0
+-	test -f libhspell.so.0 && ln -sf libhspell.so.0 $(DESTDIR)$(LIBDIR)/libhspell.so
++	test -f libhspell.so.0 &&  cp libhspell.so.0 $(DESTDIR)$(LIBDIR)/
++	test -f libhspell.so.0 &&  chmod 755 $(DESTDIR)$(LIBDIR)/libhspell.so.0
++	test -f libhspell.so.0 &&  ln -sf libhspell.so.0 $(DESTDIR)$(LIBDIR)/libhspell.so
+ 
+ 
+ ################################################
+diff --git a/WHATSNEW b/WHATSNEW
+index 5dd02c2..d8de935 100644
+--- a/WHATSNEW
++++ b/WHATSNEW
+@@ -46,7 +46,7 @@ Release 1.2 (February 28, 2012)
+    and hspell_trycorrect() to core-dump on an empty word.
+ 
+  * Fixed a bug which caused us to accept a definite article on verbs with
+-   objects, e.g., äëåáùï.
++   objects, e.g., ×”×›×•×‘×©×Ÿ.
+ 
+  * The "myspell" target was removed, as this format has been all but abandoned
+    in recent years. Use "make hunspell" instead.
+@@ -57,7 +57,7 @@ Release 1.2 (February 28, 2012)
+    hunspell-format dictionaries.
+ 
+  * In previous releases, generated hunspell and aspell dictionaries incorrectly
+-   accepted bare infinitive verbs, e.g., éùåï. This is fixed in this release
++   accepted bare infinitive verbs, e.g., ×™×©×•×Ÿ. This is fixed in this release
+    for hunspell dictionaries, using the hunspell-specific NEEDAFFIX feature.
+    Unfortunately, aspell does not have this feature, so the aspell dictionary
+    still has this bug. Added a "make test" to test this bug.
+@@ -336,7 +336,7 @@ Release 0.5: (May 8, 2003)
+    In order to build the source rpm you must --define in the command-line either
+    'fat 0' or 'fat 1'. Can anyone tell me how can I set a default for that?
+ 
+- * Infinitives now allow áëìî prefixes, not just ì: ìùáåø, áùáåø, ëùáåø, îùáåø.
++ * Infinitives now allow ×‘×›×œ×ž prefixes, not just ×œ: ×œ×©×‘×•×¨, ×‘×©×‘×•×¨, ×›×©×‘×•×¨, ×ž×©×‘×•×¨.
+ 
+  * Added a "-d" option to the word-list generators, which prints derivation
+    explanation for all inflections, and also gender information for all nouns.
+@@ -368,9 +368,9 @@ Release 0.4: (March 10, 2003)
+    option not working.
+    Thanks to Tzafrir Cohen and Oron Peled for the initial version of the spec.
+ 
+- * Shem Poal Natuy + Kinuy for all verbs, things like: åúáùá ,éððèöäá
++ * Shem Poal Natuy + Kinuy for all verbs, things like:  ×•×ª×‘×©×‘ ,×™× × ×˜×¦×”×‘
+    There is probably an error in the conjugation of these Shmot Poal from Binyan
+-   Qal. woo creates áæåëøðå, while the strict rules say it should be áæëøðå.
++   Qal. woo creates ×‘×–×•×›×¨× ×•, while the strict rules say it should be ×‘×–×›×¨× ×•.
+    This would be settled by the next release.
+ 
+  * Added "-i" option, to be used in addition to "-a" from within other
+@@ -413,7 +413,7 @@ Release 0.3: (February 2, 2003)
+    Read http://www.math.tau.ac.il/~dekelts/lyx/instructions2.html for
+    Hebrew LyX general instructions.
+ 
+- * No longer incorrectly recognize ùìåååí (should be ùìååí, "that to their
++ * No longer incorrectly recognize ×©×œ×•×•×•× (should be ×©×œ×•×•×, "that to their
+    hook").
+ 
+  * The wolig.pl automatic inflector can handle country names, and many more
+diff --git a/hspell.1 b/hspell.1
+index f0ce7af..41f03c1 100644
+--- a/hspell.1
++++ b/hspell.1
+@@ -38,7 +38,7 @@ The output will also be in ISO-8859-8 encoding, in so-called "logical order",
+ so it is normally useful to pipe it to bidiv(1) before viewing, as in:
+ .PP
+ .RS
+-.B "hspell -c filename | bidiv | less"
++.B "hspell \-c filename | bidiv | less"
+ .RE
+ .PP
+ If no input file is given,
+@@ -162,9 +162,9 @@ This allows conveniently spell-checking mixed Hebrew-English documents.
+ Running
+ .B hspell
+ with the program name
+-.B hspell-i
++.B hspell\-i
+ also enables the
+-.B -i
++.B \-i
+ option. This is a useful trick when an application expects just the name
+ of a spell-checking program, and adds only the "\-a" option (without giving
+ the user an option to also add "\-i"). The
+diff --git a/hspell.3 b/hspell.3
+index 1737c0c..430a0b3 100644
+--- a/hspell.3
++++ b/hspell.3
+@@ -179,12 +179,12 @@ to "/usr/local/share/hspell/hebrew.wgz".
+ On most systems, the Hspell library is compiled to use the Zlib library
+ for reading the compressed dictionaries. Therefore, a program linking with
+ the Hspell library must also be linked with the Zlib library (usually, by
+-adding "-lz" to the compilation line).
++adding "\-lz" to the compilation line).
+ 
+ Programs that use
+ .I autoconf
+ to search for the Hspell library, should remember to tell AC_CHECK_LIB
+-to also link with the -lz library when checking for -lhspell.
++to also link with the \-lz library when checking for \-lhspell.
+ 
+ .SH CAVEATS
+ While the API described here has been stable for years, it may change
+diff --git a/test/test1 b/test/test1
+index 727151d..3842211 100755
+--- a/test/test1
++++ b/test/test1
+@@ -11,7 +11,7 @@
+ DIR=test
+ 
+ TMPLOG=/tmp/test1.log
+-function dotest(){
++dotest(){
+ 	# Run the given "ispell -a"-like command and expect all the words to
+ 	# be correct, or all incorrect, as requested.
+ 	local TESTNAME="$1"
+@@ -50,7 +50,7 @@ function dotest(){
+ }
+ 
+ TMPFILE=/tmp/test1.in
+-function test_all(){
++test_all(){
+ 	TESTNAME="$1"
+ 	shift
+ 	>$TMPFILE
+@@ -64,7 +64,7 @@ function test_all(){
+ 			dotest "$TESTNAME/$section" "$TMPFILE" "$SECHEAD" "$@"
+ 			>$TMPFILE
+ 			SECHEAD="$line"
+-			let section++
++			section=$((section+1))
+ 			;;
+ 		*)
+ 			echo "$line" >>$TMPFILE
+-- 
+2.51.0
+

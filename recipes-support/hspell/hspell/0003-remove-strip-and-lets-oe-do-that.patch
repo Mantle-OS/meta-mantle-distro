@@ -1,0 +1,34 @@
+From dcce580cb28826fe7ff43cc1996f426b7ad1ef63 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Fri, 12 Sep 2025 03:44:19 +0000
+Subject: [PATCH] remove strip and lets oe do that
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ Makefile.in | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 616299b..2962102 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -67,8 +67,6 @@ LIBS=@LIBS@
+ CPPFLAGS=@CPPFLAGS@
+ LDFLAGS=@LDFLAGS@
+ 
+-STRIP=strip
+-
+ .c.o:
+ 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEFS) $<
+ 
+@@ -116,7 +114,6 @@ HSPELL_EXECUTABLE=hspell
+ 
+ install: all
+ 	test -d $(DESTDIR)$(BIN) || mkdir -m 755 -p $(DESTDIR)$(BIN)
+-	$(STRIP) $(HSPELL_EXECUTABLE)
+ 	-rm -f $(DESTDIR)$(BIN)/$(HSPELL_EXECUTABLE)
+ 	cp $(HSPELL_EXECUTABLE) $(DESTDIR)$(BIN)/$(HSPELL_EXECUTABLE)
+ 	chmod 755 $(DESTDIR)$(BIN)/$(HSPELL_EXECUTABLE)
+-- 
+2.51.0
+
