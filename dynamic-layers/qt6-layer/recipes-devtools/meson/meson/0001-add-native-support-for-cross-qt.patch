@@ -1,0 +1,44 @@
+From b061c111ad2bb1ae1d13f09938e9621c18c94e8c Mon Sep 17 00:00:00 2001
+From: Joseph Mills <josephjamesmills@gmail.com>
+Date: Sat, 13 Sep 2025 23:43:58 +0000
+Subject: [PATCH] add native support for cross qt
+
+Upstream-Status: Pending
+Signed-off-by: Joseph Mills <josephjamesmills@gmail.com>
+---
+ mesonbuild/modules/qt.py | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/mesonbuild/modules/qt.py b/mesonbuild/modules/qt.py
+index 83dcf31..dcf95bc 100644
+--- a/mesonbuild/modules/qt.py
++++ b/mesonbuild/modules/qt.py
+@@ -1,4 +1,4 @@
+-# Copyright 2015 The Meson development team
++# Copyright 2015 The Meson development  team
+ # Copyright © 2021 Intel Corporation
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+@@ -171,9 +171,18 @@ class QtBaseModule(ExtensionModule):
+             return
+         self._tools_detected = True
+         mlog.log(f'Detecting Qt{self.qt_version} tools')
+-        kwargs = {'required': required, 'modules': 'Core', 'method': method}
++        #kwargs = {'required': required, 'modules': 'Core', 'method': method}
+         # Just pick one to make mypy happy
++        # IMPORTANT:
++        # Tools (moc/uic/rcc/lrelease/...) must run on the build machine in a
++        # cross setup. Resolve a *native* Qt dep so that bindir/libexecdir and
++        # version checks come from the native Qt, not the target Qt.
++        kwargs = {
++            'required': required,
++            'modules': 'Core', 'method': method, 'native': True,
++        }
+         qt = T.cast('QtPkgConfigDependency', find_external_dependency(f'qt{self.qt_version}', state.environment, kwargs))
++
+         if qt.found():
+             # Get all tools and then make sure that they are the right version
+             self.compilers_detect(state, qt)
+-- 
+2.51.0
+

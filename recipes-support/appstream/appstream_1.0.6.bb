@@ -28,7 +28,6 @@ SRC_URI = " \
 	https://www.freedesktop.org/software/appstream/releases/AppStream-${PV}.tar.xz \
 	file://0001-remove-hardcoded-path.patch \
 	file://0002-Do-not-build-qt-tests.patch \
-	file://0003-Fix-PACKAGE_PREFIX_DIR-in-qt-cmake-AppStreamQtConfig.patch \
 "
 SRC_URI[sha256sum] = "db4439db6a33de3ca1041473501610844ddf1b72ae23016c05242c681c380b4d"
 
@@ -36,11 +35,18 @@ S = "${WORKDIR}/AppStream-${PV}"
 
 PACKAGECONFIG ?= " \
     ${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)} \
+    svg \
+    zstd \
 "
 
 PACKAGECONFIG[systemd] = "-Dsystemd=true,-Dsystemd=false, systemd"
 PACKAGECONFIG[stemming] = "-Dstemming=true,-Dstemming=false, libstemmer"
-PACKAGECONFIG[qt6] = "-Dqt=true,-Dqt=false, qtbase6"
+PACKAGECONFIG[qt5] = "-Dqt=true -Dqt-versions=5, -Dqt=false, qtbase qtbase-native qttools-native"
+PACKAGECONFIG[qt6] = "-Dqt=true -Dqt-versions=6, -Dqt=false, qtbase6 qtbase6-native qttools6-native"
+PACKAGECONFIG[svg] = "-Dsvg-support=true, -Dsvg-support=false, librsvg"
+PACKAGECONFIG[zstd] = "-Dzstd-support=true, -Dzstd-support=false, zstd"
+PACKAGECONFIG[compose] = "-Dcompose=true, -Dcompose=false, composefs"
+PACKAGECONFIG[apt] = "-Dapt-support=true, -Dapt-support=false, apt dpkg"
 
 FILES:${PN} += "${datadir}"
 
@@ -50,6 +56,6 @@ BBCLASSEXTEND = "native"
 
 # Fix meson not finding the Qt build tools in cross-compilation
 # setups. See: https://github.com/mesonbuild/meson/issues/13018
-do_configure:prepend:class-target() {
-    export PATH=${STAGING_DIR_NATIVE}${libexecdir}:$PATH
-}
+#do_configure:prepend:class-target() {
+#    export PATH=${STAGING_DIR_NATIVE}${libexecdir}:$PATH
+#}
