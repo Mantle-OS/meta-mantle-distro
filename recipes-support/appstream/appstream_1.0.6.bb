@@ -7,7 +7,6 @@ DEPENDS = " \
     appstream-native \
     curl-native \
     curl \
-    docbook-xml-dtd4-native \
     gperf-native \
     glib-2.0 \
     libyaml \
@@ -15,6 +14,7 @@ DEPENDS = " \
     libxmlb \
     libxslt-native \
     itstool-native \
+    docbook-xml-dtd4-native \
     docbook-xsl-stylesheets-native \
     python3-pygments-native \
 "
@@ -25,18 +25,20 @@ GIR_MESON_OPTION = "gir"
 GIDOCGEN_MESON_OPTION = "apidocs"
 
 SRC_URI = " \
-	https://www.freedesktop.org/software/appstream/releases/AppStream-${PV}.tar.xz \
-	file://0001-remove-hardcoded-path.patch \
-	file://0002-Do-not-build-qt-tests.patch \
+    https://www.freedesktop.org/software/appstream/releases/AppStream-${PV}.tar.xz \
+    file://0001-remove-hardcoded-path.patch \
+    file://0002-Do-not-build-qt-tests.patch \
+    file://0003-cmake-appstream-qt-part.patch \
 "
-SRC_URI[sha256sum] = "db4439db6a33de3ca1041473501610844ddf1b72ae23016c05242c681c380b4d"
 
+SRC_URI[sha256sum] = "db4439db6a33de3ca1041473501610844ddf1b72ae23016c05242c681c380b4d"
 S = "${WORKDIR}/AppStream-${PV}"
 
 PACKAGECONFIG ?= " \
     ${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)} \
     svg \
     zstd \
+    qt6 \
 "
 
 PACKAGECONFIG[systemd] = "-Dsystemd=true,-Dsystemd=false, systemd"
@@ -54,8 +56,3 @@ EXTRA_OEMESON += "${@bb.utils.contains('GI_DATA_ENABLED', 'True', '-Dvapi=true',
 
 BBCLASSEXTEND = "native"
 
-# Fix meson not finding the Qt build tools in cross-compilation
-# setups. See: https://github.com/mesonbuild/meson/issues/13018
-#do_configure:prepend:class-target() {
-#    export PATH=${STAGING_DIR_NATIVE}${libexecdir}:$PATH
-#}

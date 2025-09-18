@@ -1,0 +1,33 @@
+From c823a1e1c8f903d65d8dbd9a642b564fdf937d73 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Thu, 18 Sep 2025 00:13:26 +0000
+Subject: [PATCH] cmake appstream qt part
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ qt/cmake/AppStreamQtConfig.cmake.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/qt/cmake/AppStreamQtConfig.cmake.in b/qt/cmake/AppStreamQtConfig.cmake.in
+index 63df65f..ec9de20 100644
+--- a/qt/cmake/AppStreamQtConfig.cmake.in
++++ b/qt/cmake/AppStreamQtConfig.cmake.in
+@@ -1,5 +1,5 @@
+ 
+-get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../" ABSOLUTE)
++get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
+ 
+ # Use original install prefix when loaded through a "/usr move"
+ # cross-prefix symbolic link such as /lib -> /usr/lib.
+@@ -32,7 +32,7 @@ add_library(AppStreamQt SHARED IMPORTED)
+ set_target_properties(AppStreamQt PROPERTIES
+   INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/include/"
+   INTERFACE_LINK_LIBRARIES "Qt::Core"
+-  IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/@LIBDIR@/libAppStreamQt.so.${AppStreamQt_VERSION}"
++  IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/@LIBDIR@/libAppStreamQt.so"
+   IMPORTED_SONAME "libAppStreamQt.${AppStreamQt_VERSION_MAJOR}"
+ )
+ 
+-- 
+2.51.0
+
