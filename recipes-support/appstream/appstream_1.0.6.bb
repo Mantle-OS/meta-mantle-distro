@@ -34,7 +34,7 @@ SRC_URI = " \
 SRC_URI[sha256sum] = "db4439db6a33de3ca1041473501610844ddf1b72ae23016c05242c681c380b4d"
 S = "${WORKDIR}/AppStream-${PV}"
 
-PACKAGECONFIG ?= " \
+PACKAGECONFIG:append = " \
     ${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)} \
     svg \
     zstd \
@@ -42,7 +42,7 @@ PACKAGECONFIG ?= " \
 
 PACKAGECONFIG[systemd] = "-Dsystemd=true,-Dsystemd=false, systemd"
 PACKAGECONFIG[stemming] = "-Dstemming=true,-Dstemming=false, libstemmer"
-PACKAGECONFIG[qt5] = "-Dqt=true -Dqt-versions=5, -Dqt=false, qtbase qtbase-native qttools-native"
+#PACKAGECONFIG[qt5] = "-Dqt=true -Dqt-versions=5, -Dqt=false, qtbase qtbase-native qttools-native"
 PACKAGECONFIG[qt6] = "-Dqt=true -Dqt-versions=6, -Dqt=false, qtbase6 qtbase6-native qttools6-native"
 PACKAGECONFIG[svg] = "-Dsvg-support=true, -Dsvg-support=false, librsvg"
 PACKAGECONFIG[zstd] = "-Dzstd-support=true, -Dzstd-support=false, zstd"

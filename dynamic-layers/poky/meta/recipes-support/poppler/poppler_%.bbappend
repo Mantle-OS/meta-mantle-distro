@@ -1,7 +1,12 @@
-# SPDX-FileCopyrightText: 2020-2024 Andreas Cord-Landwehr <cordlandwehr@kde.org>
-# SPDX-FileCopyrightText: 2025 Joseph Mills <josephjamesmills@gmail.com>
-# SPDX-License-Identifier: MIT
+FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}:"
 
-QT_CONFIG = "${@bb.utils.contains('PV', '23.04.0', 'qt5', 'qt6', d)}"
-PACKAGECONFIG:append = " ${QT_CONFIG}"
+SRC_URI:append = " \
+    file://0002-compile-with-qt6.patch \
+"
+
 inherit qt6-cmake
+EXTRA_OECMAKE:append = " -DENABLE_QT6=ON"
+DEPENDS:append = " \
+    qtbase6 qtbase6-native \
+    qttools6-native \
+"
