@@ -38,7 +38,6 @@ PACKAGECONFIG ?= " \
     ${@bb.utils.filter('DISTRO_FEATURES', 'systemd', d)} \
     svg \
     zstd \
-    qt6 \
 "
 
 PACKAGECONFIG[systemd] = "-Dsystemd=true,-Dsystemd=false, systemd"
