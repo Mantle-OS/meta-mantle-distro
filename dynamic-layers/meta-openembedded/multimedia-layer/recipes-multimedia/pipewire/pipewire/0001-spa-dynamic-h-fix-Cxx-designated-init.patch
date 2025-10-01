@@ -1,0 +1,28 @@
+From bada59fa527cd3921eb17dce63b420d505bec032 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Wed, 1 Oct 2025 07:02:18 +0000
+Subject: [PATCH] spa dynamic h fix Cxx designated init
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ spa/include/spa/pod/dynamic.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/spa/include/spa/pod/dynamic.h b/spa/include/spa/pod/dynamic.h
+index 8cc9914e6..ad03cc9aa 100644
+--- a/spa/include/spa/pod/dynamic.h
++++ b/spa/include/spa/pod/dynamic.h
+@@ -41,8 +41,8 @@ static inline void spa_pod_dynamic_builder_init(struct spa_pod_dynamic_builder *
+ 		void *data, uint32_t size, uint32_t extend)
+ {
+ 	static const struct spa_pod_builder_callbacks spa_pod_dynamic_builder_callbacks = {
+-		SPA_VERSION_POD_BUILDER_CALLBACKS,
+-		.overflow = spa_pod_dynamic_builder_overflow
++                SPA_VERSION_POD_BUILDER_CALLBACKS,
++                spa_pod_dynamic_builder_overflow
+ 	};
+ 	builder->b = SPA_POD_BUILDER_INIT(data, size);
+ 	spa_pod_builder_set_callbacks(&builder->b, &spa_pod_dynamic_builder_callbacks, builder);
+-- 
+2.51.0
+

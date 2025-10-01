@@ -37,3 +37,5 @@ do_install:append() {
         sed -i -e 's|${RECIPE_SYSROOT_NATIVE}[^"'\'' ]*||g' ${D}${bindir}/switcherooctl
     fi
 }
+
+#BBCLASSEXTEND = "native nativesdk"

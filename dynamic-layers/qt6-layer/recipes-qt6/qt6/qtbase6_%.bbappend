@@ -19,4 +19,7 @@ PACKAGECONFIG += "\
     sql-sqlite \
 "
 
-PACKAGECONFIG:append:class-native = " sql-sqlite"
+PACKAGECONFIG:append:class-native = " \
+    sql-sqlite \
+    accessibility \
+"
