@@ -1,2 +1,2 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}:"
-SRC_URI += " file://cross.patch "
+#FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}:"
+#SRC_URI += " file://cross.patch "

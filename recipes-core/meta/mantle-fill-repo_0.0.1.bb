@@ -139,17 +139,21 @@ python __set_java_world_recos () {
     d.setVar('RRECOMMENDS:%s-java-world' % d.getVar('PN'), recos)
 }
 
-# chromium
-SUMMARY:${PN}-chrome-world = "chrome browsers"
+
+
+SUMMARY:${PN}-chrome-world = "Mantle OS Chromium Browser Suite"
 RRECOMMENDS:${PN}-chrome-world = " \
-    ${@bb.utils.contains("DISTRO_FEATURES", "x11", " chromium-x11 ", "", d)} \
-    ${@bb.utils.contains("DISTRO_FEATURES", "wayland", "  chromium-ozone-wayland ", "", d)} \
+    ${@bb.utils.contains("DISTRO_FEATURES", "webengine", \
+        bb.utils.contains("DISTRO_FEATURES", "x11", " chromium-x11 ", "", d) + \
+        bb.utils.contains("DISTRO_FEATURES", "wayland", " chromium-ozone-wayland ", "", d), \
+    "", d)} \
 "
 
-# firefox needs py2 :( 
-SUMMARY:${PN}-firefox-world = "firefox packages"
-RRECOMMENDS:${PN}-firefox-world = "\
-    ${@bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2"", "firefox firefox-l10n-en-us", "", d)} \
+SUMMARY:${PN}-firefox-world = "Mantle OS Firefox Browser Suite"
+RRECOMMENDS:${PN}-firefox-world = " \
+    ${@bb.utils.contains("DISTRO_FEATURES", "webengine", \
+        bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2", "firefox firefox-l10n-en-us", "", d), \
+    "", d)} \
 "
 
 # qt5
