@@ -1,0 +1,14 @@
+[Unit]
+Description=launch chromium
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=kiosk
+Type=idle
+Restart=always
+EnvironmentFile=-/etc/default/chromium-kiosk
+ExecStart=/usr/bin/chromium --gpu-no-context-lost --enable-gpu-rasterization --no-first-run --incognito --enable-wayland-ime --kiosk $CHROMIUM_WEBSITE > /dev/null 2>&1 &
+
+[Install]
+WantedBy=graphical.target

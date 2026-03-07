@@ -1,0 +1,4 @@
+DISPLAY=:0
+
+# Startup Website
+CHROMIUM_WEBSITE="https://mantle-os.github.io"
