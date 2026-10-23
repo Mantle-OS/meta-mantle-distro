@@ -3,7 +3,7 @@ PACKAGECONFIG += "\
     cups \
     mtdev \
     tslib \
-    gtk \
+    ${@bb.utils.contains("DISTRO_FEATURES", "x11 ", " gtk ", "", d)} \
 "
 
 #net
