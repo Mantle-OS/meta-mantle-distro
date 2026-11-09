@@ -1,0 +1,48 @@
+From 04dd115f61ccee2397b6e6d2c8baa1c45e541628 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 17:36:34 -0600
+Subject: [PATCH] Use threads and Fcitx5Utils_DIR
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt      | 4 ++--
+ test/CMakeLists.txt | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c0551a9..5ab4ac2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,7 +43,7 @@ endif()
+ 
+ find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
+ find_package(Gettext REQUIRED)
+-find_package(Pthread REQUIRED)
++find_package(Threads REQUIRED)
+ find_package(Fcitx5Module REQUIRED COMPONENTS QuickPhrase)
+ 
+ option(USE_DLOPEN "Use dlopen to load lua library." On)
+@@ -53,7 +53,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
+ 
+ if (NOT TARGET Lua::_LuaLibrary)
+     if (USE_DLOPEN)
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index fb3de69..5550a32 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -5,6 +5,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+ add_executable(testlua testlua.cpp)
+ target_link_libraries(testlua Fcitx5::Core Fcitx5::Module::LuaAddonLoader Fcitx5::Module::TestFrontend
+-Fcitx5::Module::TestIM Pthread::Pthread)
++Fcitx5::Module::TestIM Threads::Threads)
+ add_dependencies(testlua luaaddonloader copy luaaddonloader.conf.in-fmt)
+ add_test(NAME testlua COMMAND testlua)
+-- 
+2.55.0
+

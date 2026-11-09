@@ -1,0 +1,38 @@
+From 54f6e60a95aa722020069d8e3d93e4612ba04722 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sat, 7 Nov 2026 10:05:30 -0600
+Subject: [PATCH] perfetto add missing cstdint
+
+Upstream-Status: Pending
+---
+ .../perfetto/include/perfetto/ext/tracing/core/slice.h           | 1 +
+ .../perfetto/include/perfetto/ext/tracing/core/trace_packet.h    | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/third_party/perfetto/include/perfetto/ext/tracing/core/slice.h b/third_party/perfetto/include/perfetto/ext/tracing/core/slice.h
+index 063043bdc69..537cdef567d 100644
+--- a/third_party/perfetto/include/perfetto/ext/tracing/core/slice.h
++++ b/third_party/perfetto/include/perfetto/ext/tracing/core/slice.h
+@@ -23,6 +23,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ #include "perfetto/base/logging.h"
+ 
+diff --git a/third_party/perfetto/include/perfetto/ext/tracing/core/trace_packet.h b/third_party/perfetto/include/perfetto/ext/tracing/core/trace_packet.h
+index abb25c4b489..f66fb5d6b04 100644
+--- a/third_party/perfetto/include/perfetto/ext/tracing/core/trace_packet.h
++++ b/third_party/perfetto/include/perfetto/ext/tracing/core/trace_packet.h
+@@ -21,6 +21,7 @@
+ #include <memory>
+ #include <optional>
+ #include <tuple>
++#include <cstdint>
+ 
+ #include "perfetto/base/export.h"
+ #include "perfetto/base/logging.h"
+-- 
+2.55.0
+

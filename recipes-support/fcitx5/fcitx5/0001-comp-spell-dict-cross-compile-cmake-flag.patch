@@ -1,0 +1,53 @@
+From 389919054427d0296f5d542aee7543d5935433a0 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Thu, 5 Nov 2026 14:01:29 -0600
+Subject: [PATCH] comp-spell-dict cross compile cmake flag
+ FCITX5_COMP_SPELL_DICT_EXECUTABLE
+
+Upstream-Status: Pending
+---
+ src/modules/spell/CMakeLists.txt | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
+
+diff --git a/src/modules/spell/CMakeLists.txt b/src/modules/spell/CMakeLists.txt
+index acdbb2b1..a6a03716 100644
+--- a/src/modules/spell/CMakeLists.txt
++++ b/src/modules/spell/CMakeLists.txt
+@@ -40,11 +40,30 @@ fcitx5_download(spell-en-download ${SPELL_EN_DICT_URL} ${SPELL_EN_DICT_TAR}
+ fcitx5_extract(spell-en-extract "${SPELL_EN_DICT_TAR}" DEPENDS spell-en-download
+   OUTPUT ${SPELL_EN_DICT_SRC})
+ 
++if(CMAKE_CROSSCOMPILING)
++    set(FCITX5_COMP_SPELL_DICT_EXECUTABLE "" CACHE FILEPATH
++        "Path to the native comp-spell-dict executable")
++
++    if(NOT FCITX5_COMP_SPELL_DICT_EXECUTABLE OR
++       NOT EXISTS "${FCITX5_COMP_SPELL_DICT_EXECUTABLE}")
++        message(FATAL_ERROR
++            "Cross-compiling requires a native comp-spell-dict executable. "
++            "Set FCITX5_COMP_SPELL_DICT_EXECUTABLE to the path of the "
++            "host-native comp-spell-dict executable.")
++    endif()
++else()
++    set(FCITX5_COMP_SPELL_DICT_EXECUTABLE
++        "$<TARGET_FILE:comp-spell-dict>")
++endif()
++
+ add_custom_command(
+-  OUTPUT "${SPELL_EN_DICT}"
+-  DEPENDS "${SPELL_EN_DICT_SRC}" Fcitx5::comp-spell-dict spell-en-extract
+-  COMMAND Fcitx5::comp-spell-dict --comp-dict
+-  "${SPELL_EN_DICT_SRC}" "${SPELL_EN_DICT}")
++    OUTPUT "${SPELL_EN_DICT}"
++    DEPENDS "${SPELL_EN_DICT_SRC}" spell-en-extract
++    COMMAND "${FCITX5_COMP_SPELL_DICT_EXECUTABLE}" --comp-dict
++            "${SPELL_EN_DICT_SRC}" "${SPELL_EN_DICT}"
++    VERBATIM
++)
++
+ add_custom_target(spell_en_dict ALL DEPENDS "${SPELL_EN_DICT}")
+ install(FILES "${SPELL_EN_DICT}" DESTINATION "${FCITX_INSTALL_PKGDATADIR}/spell")
+ endif()
+-- 
+2.55.0
+

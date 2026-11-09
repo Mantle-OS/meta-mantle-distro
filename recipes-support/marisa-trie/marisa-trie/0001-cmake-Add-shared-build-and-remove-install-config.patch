@@ -1,0 +1,66 @@
+From 180fa08dc53782957a6d52e817151945f950fef5 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 13:38:29 -0600
+Subject: [PATCH] cmake Add shared build and remove install config
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b96374e..e6092b9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -153,8 +153,8 @@ set(MARISA_HEADERS
+   include/marisa/stdio.h
+   include/marisa/trie.h
+ )
+-add_library(marisa
+-  ${MARISA_HEADERS}
++
++set(MARISA_SOURCES
+   lib/marisa/agent.cc
+   lib/marisa/grimoire/algorithm/sort.h
+   lib/marisa/grimoire/intrin.h
+@@ -188,6 +188,13 @@ add_library(marisa
+   lib/marisa/keyset.cc
+   lib/marisa/trie.cc
+ )
++
++if(BUILD_SHARED_LIBS)
++    add_library(marisa SHARED ${MARISA_HEADERS} ${MARISA_SOURCES})
++else()
++    add_library(marisa STATIC ${MARISA_HEADERS} ${MARISA_SOURCES})
++endif()
++
+ target_include_directories(marisa
+   PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+@@ -201,6 +208,7 @@ set_target_properties(marisa PROPERTIES
+ )
+ configure_target_from_options(marisa)
+ add_native_code(marisa)
++
+ add_library(Marisa::marisa ALIAS marisa)
+ 
+ # Tools
+@@ -265,7 +273,6 @@ endif()
+ install(
+   TARGETS marisa
+   EXPORT MarisaTargets
+-  CONFIGURATIONS Release
+   DESTINATION ${LIB_INSTALL_DIR}
+   COMPONENT Library
+ )
+@@ -279,7 +286,6 @@ install(
+ if(ENABLE_TOOLS)
+   install(
+     TARGETS ${MARISA_TOOLS}
+-    CONFIGURATIONS Release
+     COMPONENT Binaries
+   )
+ endif()
+-- 
+2.55.0
+

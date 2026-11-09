@@ -1,0 +1,44 @@
+From 0762f78651d0f5f1df0f9d6b19e324e9f7679078 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 08:03:31 -0600
+Subject: [PATCH] Fix ON vs On in UTHASH check and add ENABLE_TEST like all
+ other projects in this group
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ce65613..73c6a6a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -3,7 +3,8 @@ project(xcb-imdkit VERSION 1.0.9)
+ 
+ find_package(ECM 0.0.11 REQUIRED NO_MODULE)
+ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+-option(USE_SYSTEM_UTHASH "Enable system utash" On)
++option(USE_SYSTEM_UTHASH "Enable system utash" ON)
++option(ENABLE_TEST "Enable unit tests for imdkit" ON)
+ 
+ include(GenerateExportHeader)
+ include(CheckFunctionExists)
+@@ -45,10 +46,12 @@ set(CMAKE_MODULE_LINKER_FLAGS "-Wl,--as-needed ${CMAKE_MODULE_LINKER_FLAGS}")
+ 
+ find_package(XCB REQUIRED COMPONENTS XCB UTIL KEYSYMS)
+ 
+-enable_testing()
+-
+ add_subdirectory(src)
+-add_subdirectory(test)
++
++if(ENABLE_TEST)
++    enable_testing()
++    add_subdirectory(test)
++endif()
+ 
+ # Write out the features
+ feature_summary (WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+-- 
+2.55.0
+

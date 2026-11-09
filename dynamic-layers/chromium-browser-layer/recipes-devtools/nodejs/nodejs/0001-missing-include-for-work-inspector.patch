@@ -1,0 +1,25 @@
+From 914a5b3ed230d41f48b4eafe9cf38d5fe217f6d6 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sat, 7 Nov 2026 08:46:31 -0600
+Subject: [PATCH] missing include for work inspector
+
+Upstream-Status: Pending
+---
+ src/inspector/worker_inspector.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/inspector/worker_inspector.h b/src/inspector/worker_inspector.h
+index d3254d5a..5e3e37a3 100644
+--- a/src/inspector/worker_inspector.h
++++ b/src/inspector/worker_inspector.h
+@@ -9,6 +9,7 @@
+ #include <string>
+ #include <unordered_map>
+ #include <unordered_set>
++#include <cstdint>
+ 
+ namespace node {
+ namespace inspector {
+-- 
+2.55.0
+

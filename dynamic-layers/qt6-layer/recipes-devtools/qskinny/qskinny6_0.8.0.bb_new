@@ -1,0 +1,188 @@
+SUMMARY = "QSkinny"
+DESCIPTION = "The (Q)Skinny library is a framework built on top of the Qt scene graph and very few core classes from Qt/Quick. It offers a set of lightweight controls, that can be used from C++ and/or QML."
+HOMEPAGE = "https://github.com/uwerat/qskinny"
+LICENSE = "BSD-3-Clause"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE.md;md5=b090613b0f65399acfdef2a8d6d33711"
+
+SRC_REV ?= "f22c11af478ecb0d877eed85eb2dad0120b82830"
+SRC_URI ?= " \
+    https://github.com/uwerat/qskinny.git \
+"
+PV = "0.8.0"
+S = "${WORKDIR}/git"
+
+REQUIRED_DISTRO_FEATURES =  " opengl"
+
+
+#     option(BUILD_PEDANTIC     "Enable pedantic compile flags ( only GNU/CLANG )" OFF)
+#     option(BUILD_QSKDLL       "Build libs ( not plugins ) as shared library" ON)
+#     option(BUILD_QML_EXPORT   "Exporting QSkinny to QML" ON)
+#
+#     option(BUILD_TOOLS        "Build qskinny tools" ON)
+#     option(BUILD_INPUTCONTEXT "Build virtual keyboard support" ON)
+#     option(BUILD_EXAMPLES     "Build qskinny examples" ON)
+#     option(BUILD_PLAYGROUND   "Build qskinny playground" ON)
+
+PACKAGECONFIG[pedantic]         = " -DCMAKE_BUILD_PEDANTIC=ON, -DCMAKE_BUILD_PEDANTIC=OFF, "
+# option(BUILD_QSKDLL       "Build libs ( not plugins ) as shared library" ON)
+PACKAGECONFIG[shared]           = " -DCMAKE_BUILD_QSKDLL=ON, -DCMAKE_BUILD_QSKDLL=OFF, "
+PACKAGECONFIG[qmlexport]        = " -DCMAKE_BUILD_QML_EXPORT=ON, -DCMAKE_BUILD_QML_EXPORT=OFF, "
+PACKAGECONFIG[tools]            = " -DCMAKE_BUILD_TOOLS=ON, -DCMAKE_BUILD_TOOLS=OFF, "
+
+#     option( BUILD_TOOLS_STANDALONE "Build tools without qskinny library dependency" ON )
+PACKAGECONFIG[tools-standalone]            = " -DCMAKE_BUILD_TOOLS_STANDALONE=ON, -DCMAKE_BUILD_TOOLS_STANDALONE=OFF, "
+
+PACKAGECONFIG[virtual-keyboard] = " -DCMAKE_BUILD_INPUTCONTEXT=ON, -DBUILD_INPUTCONTEXT=OFF, "
+PACKAGECONFIG[examples]         = " -DCMAKE_BUILD_EXAMPLES=ON, -DBUILD_EXAMPLES=OFF, "
+PACKAGECONFIG[playground]       = " -DCMAKE_BUILD_PLAYGROUND=ON, -DCMAKE_BUILD_PLAYGROUND=OFF, "
+PACKAGECONFIG[pinyin]           = " -DCMAKE_ENABLE_PINYIN=ON, -DCMAKE_ENABLE_PINYIN=OFF, pinyin"
+PACKAGECONFIG[hunspell]         = " -DCMAKE_ENABLE_HUNSPELL=ON , -DCMAKE_ENABLE_HUNSPELL=OFF, hunspell"
+PACKAGECONFIG[docs]             = ",, doxygen-native "
+
+PACKAGECONFIG ?= " \
+    shared \
+    input-ctx \
+    virtual-keyboard \
+"
+
+DEPENDS += " \
+    qtbase6 \
+    qtdeclaritive6 \
+    qtsvg6 \
+    qtshadertools6 qtshadertools6-native \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'webengine', 'qwebengine6 ', '', d)} \
+"
+
+
+do_compile:append(){
+    BUILD_DOCS=${@bb.utils.contains('PACKAGECONFIG', 'docs', 'true', 'false', d)}
+    if [[ $BUILD_DOCS == "yes" ]];
+    then
+        # run the doxygen crazy ness opn the docs/ folder. then later we will handle the packaging Thjey have some script for this
+        # cd ${S}/docs
+    # doxygen
+    #
+    # find html -name 'class_*.html' -exec sed -i \
+    #     -e '/Detailed Description/d' \
+    #     -e '0,/Definition at line/{//d;}' \
+    #     -e 's/Inheritance diagram for .*://' \
+    #     {} \;
+
+    fi
+}
+
+
+do_install:append(){
+# from the cmake
+# install(
+    # FILES
+    #     ${QSK_CMAKE_DIR}/scripts/QSkinnySvg2Qvg.lin.sh
+    #     ${QSK_CMAKE_DIR}/scripts/QSkinnySvg2Qvg.mac.sh   << remove this file after install
+    #     ${QSK_CMAKE_DIR}/scripts/QSkinnySvg2Qvg.win.bat  << remove this file  after install
+
+}
+
+
+## EXAMPLES
+PACKAGES:append = " \
+    ${PN}-example-desktop \
+    ${PN}-example-gallery \
+    ${PN}-example-layouts \
+    ${PN}-example-mycontrols \
+    ${PN}-example-qvgviewer \
+    ${PN}-example-thumbnails \
+    ${PN}-example-tabview \
+    ${PN}-example-iotdashboard \
+    ${PN}-example-boxes  \
+    ${PN}-example-buttons \
+    ${PN}-example-frames \
+    ${PN}-example-glabels \
+"
+
+SUMMARY:${PN}-example-desktop  = ""
+FILES:${PN}-example-desktop  = ""
+
+SUMMARY:${PN}-example-gallery  = ""
+FILES:${PN}-example-gallery  = ""
+
+SUMMARY:${PN}-example-layouts = ""
+FILES:${PN}-example-layouts = ""
+
+SUMMARY:${PN}-example-mycontrols = ""
+FILES:${PN}-example-mycontrols = ""
+
+SUMMARY:${PN}-example-qvgviewer = ""
+FILES:${PN}-example-qvgviewer = ""
+
+SUMMARY:${PN}-example-thumbnails = ""
+FILES:${PN}-example-thumbnails = ""
+
+SUMMARY:${PN}-example-tabview = ""
+FILES:${PN}-example-tabview = ""
+
+SUMMARY:${PN}-example-iotdashboard = ""
+FILES:${PN}-example-iotdashboard = ""
+
+SUMMARY:${PN}-example-boxes  = ""
+FILES:${PN}-example-boxes  = ""
+
+SUMMARY:${PN}-example-buttons = ""
+FILES:${PN}-example-buttons = ""
+
+SUMMARY:${PN}-example-frames = ""
+FILES:${PN}-example-frames = ""
+
+SUMMARY:${PN}-example-glabels = ""
+FILES:${PN}-example-glabels = "\
+\
+"
+
+
+# PLAYGROUND
+PACKAGES:append = " \
+    ${PN}-playground-anchors \
+    ${PN}-playground-dials \
+    ${PN}-playground-dialogbuttons \
+    ${PN}-playground-fonts \
+    ${PN}-playground-gradients \
+    ${PN}-playground-iconbrowser \
+    ${PN}-playground-invoker \
+    ${PN}-playground-shadows \
+    ${PN}-playground-shapes \
+    ${PN}-playground-charts \
+    ${PN}-playground-plots \
+"
+
+SUMMARY:${PN}-playground-anchors = ""
+FILES:${PN}-playground-anchors = ""
+
+SUMMARY:${PN}-playground-dials = ""
+FILES:${PN}-playground-dials = ""
+
+SUMMARY:${PN}-playground-dialogbuttons = ""
+FILES:${PN}-playground-dialogbuttons = ""
+
+SUMMARY:${PN}-playground-fonts = ""
+FILES:${PN}-playground-fonts = ""
+
+SUMMARY:${PN}-playground-gradients = ""
+FILES:${PN}-playground-gradients = ""
+
+SUMMARY:${PN}-playground-iconbrowser = ""
+FILES:${PN}-playground-iconbrowser = ""
+
+SUMMARY:${PN}-playground-invoker = ""
+FILES:${PN}-playground-invoker = ""
+
+SUMMARY:${PN}-playground-shadows = ""
+FILES:${PN}-playground-shadows = ""
+
+SUMMARY:${PN}-playground-shapes = ""
+FILES:${PN}-playground-shapes = ""
+
+SUMMARY:${PN}-playground-charts = ""
+FILES:${PN}-playground-charts = ""
+
+SUMMARY:${PN}-playground-plots = ""
+FILES:${PN}-playground-plots = ""
+

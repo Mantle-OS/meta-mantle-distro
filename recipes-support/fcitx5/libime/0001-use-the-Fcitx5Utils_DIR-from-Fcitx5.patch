@@ -1,0 +1,26 @@
+From dac46801f25fdab26a16785eb41f308855cae445 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Thu, 5 Nov 2026 16:42:44 -0600
+Subject: [PATCH] use the Fcitx5Utils_DIR from Fcitx5
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a562eff..d02f946 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,7 +40,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
+ 
+ find_package(Boost 1.61 CONFIG REQUIRED COMPONENTS iostreams)
+ 
+-- 
+2.55.0
+

@@ -1,0 +1,38 @@
+From d6c67281f8e42189cd7de7c73c4ef2d9d22ec00c Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sat, 7 Nov 2026 09:38:35 -0600
+Subject: [PATCH] add missing cstdint header
+
+Upstream-Status: Pending
+---
+ chromium/net/tools/huffman_trie/trie_entry.h                     | 1 +
+ .../transport_security_state_entry.h                             | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/net/tools/huffman_trie/trie_entry.h b/net/tools/huffman_trie/trie_entry.h
+index 6fc6933b0c0..de9a68796cd 100644
+--- a/net/tools/huffman_trie/trie_entry.h
++++ b/net/tools/huffman_trie/trie_entry.h
+@@ -8,6 +8,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ 
+ namespace net::huffman_trie {
+ 
+diff --git a/net/tools/transport_security_state_generator/transport_security_state_entry.h b/net/tools/transport_security_state_generator/transport_security_state_entry.h
+index f06bce10c89..03a21bbdafa 100644
+--- a/net/tools/transport_security_state_generator/transport_security_state_entry.h
++++ b/net/tools/transport_security_state_generator/transport_security_state_entry.h
+@@ -9,6 +9,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <cstdint>
+ #include "net/tools/huffman_trie/trie_entry.h"
+ 
+ namespace net::transport_security_state {
+-- 
+2.55.0
+
