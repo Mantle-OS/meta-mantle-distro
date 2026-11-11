@@ -1,4 +1,42 @@
-Common targets are:
-    mantle-image (core image)
-    mantle-image-docker  (core image built for docker import)
-    mantle-image-installer (offline installer)
+Mantle OS Distribution
+======================
+
+This distribution is not primarily intended to produce final images.
+Image composition is generally the responsibility of vendors using
+the upstream components provided by Mantle OS.
+
+Common targets include:
+    mantle-image-installer (offline installer for a recovery system)
+
+
+NVIDIA CUDA License Agreement
+=============================
+
+Mantle OS provides optional NVIDIA CUDA support for x86_64 targets.
+
+The NVIDIA CUDA Toolkit contains proprietary software governed by
+NVIDIA's license agreements.
+
+Before building CUDA packages, review the NVIDIA CUDA EULA:
+
+    https://docs.nvidia.com/cuda/eula/
+
+The applicable license text is also available in:
+
+    meta-mantle-distro/licenses/LicenseRef-CUDA-EULA
+
+CUDA license acceptance is disabled by default.
+
+To acknowledge and accept the NVIDIA CUDA license terms, add the
+following to your build/conf/local.conf:
+
+    LICENSE_FLAGS_ACCEPTED:append = " commercial_cuda"
+
+Without this flag, BitBake will exclude recipes requiring the
+commercial_cuda license flag.
+
+Enabling this flag permits building the affected recipes. It does
+not automatically install CUDA packages into an image.
+
+Redistribution of NVIDIA components remains subject to NVIDIA's
+applicable license terms.
