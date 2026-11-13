@@ -3,7 +3,26 @@ CUDA_INSTALL_PREFIX ?= "/usr/local/cuda-13.3"
 CUDA_TARGET_PREFIX = "${CUDA_INSTALL_PREFIX}/targets/${CUDA_TARGET_ARCH}"
 
 PACKAGES =+ " \
+    cuda-cudart-staticdev \
+    cuda-culibos-staticdev \
+    cuda-cupti-staticdev \
+    cuda-nvcc-staticdev \
+    cuda-nvrtc-staticdev \
+    cuda_stubs-staticdev \
+    libcublas-staticdev \
+    libcufft-staticdev \
+    libcufile-staticdev \
+    libcurand-staticdev \
+    libcusolver-staticdev \
+    libcusparse-staticdev \
+    libnpp-staticdev \
+    libnvfatbin-staticdev \
+    libnvjitlink-staticdev \
+    libnvjpeg-staticdev \
+    libnvptxcompiler-staticdev \
+    \
     cuda_stubs \
+    \
     cccl \
     cuda-crt \
     cuda-ctadvisor \
@@ -39,10 +58,6 @@ PACKAGES =+ " \
     libnvjpeg \
     libnvptxcompiler \
     libnvvm \
-"
-
-FILES:${PN} += " \
-    ${CUDA_INSTALL_PREFIX}/bin/cuda-uninstaller \
 "
 
 SUMMARY:cccl = "NVIDIA CUDA C++ Core Compute Libraries"
@@ -298,6 +313,7 @@ RDEPENDS:libcufile += "  \
     bash \
     numactl \
     rdma-core \
+    nvidia-compute \
 "
 
 SUMMARY:libcuobjclient = "NVIDIA CUDA Object Client Library"
@@ -394,55 +410,16 @@ FILES:libnvptxcompiler += " \
 # RDEPENDS:libnvptxcompiler += ""
 
 SUMMARY:libnvvm = "NVIDIA CUDA NVVM Compiler Libraries"
-FILES:libnvvm += " \
-"
+FILES:libnvvm += " "
 # RDEPENDS:libnvvm += ""
 
 
-RDEPENDS:${PN} += " glibc libgcc libstdc++ libxml2 "
-
-FILES:${PN} += " \
-    /cuda-manifest.json \
-    ${CUDA_INSTALL_PREFIX}/EULA.txt \
-    ${CUDA_INSTALL_PREFIX}/version.json \
-    ${CUDA_INSTALL_PREFIX}/include \
-    ${CUDA_INSTALL_PREFIX}/lib64 \
-"
-
-
 SUMMARY:cuda_stubs = "NVIDIA CUDA Link-Time Stub Libraries"
-FILES:cuda_stubs += " \
-    ${CUDA_TARGET_PREFIX}/lib/stubs \
-"
+FILES:cuda_stubs += " ${CUDA_TARGET_PREFIX}/lib/stubs "
 RDEPENDS:cuda_stubs += " glibc"
-
 EXCLUDE_PACKAGES_FROM_SHLIBS += " cuda_stubs"
 
-# The NVIDIA sanitizer bundle includes 32-bit x86 helper binaries.
-# Only silence the architecture check for this mixed-architecture package.
-INSANE_SKIP:cuda-sanitizer-api += " arch "
-
-
-# NVIDIA CUDA static development libraries.
-PACKAGES =+ " \
-    cuda-cudart-staticdev \
-    cuda-culibos-staticdev \
-    cuda-cupti-staticdev \
-    cuda-nvcc-staticdev \
-    cuda-nvrtc-staticdev \
-    cuda_stubs-staticdev \
-    libcublas-staticdev \
-    libcufft-staticdev \
-    libcufile-staticdev \
-    libcurand-staticdev \
-    libcusolver-staticdev \
-    libcusparse-staticdev \
-    libnpp-staticdev \
-    libnvfatbin-staticdev \
-    libnvjitlink-staticdev \
-    libnvjpeg-staticdev \
-    libnvptxcompiler-staticdev \
-"
+###################################################################################################################
 
 FILES:cuda-cudart-staticdev = " \
     ${CUDA_TARGET_PREFIX}/lib/libcudadevrt.a \
@@ -521,8 +498,12 @@ FILES:libnvptxcompiler-staticdev = " \
     ${CUDA_TARGET_PREFIX}/lib/libnvptxcompiler_static.a \
 "
 
+# The NVIDIA sanitizer bundle includes 32-bit x86 helper binaries.
+# Only silence the architecture check for this mixed-architecture package.
+INSANE_SKIP:cuda-sanitizer-api += " arch "
 
-CUDA_INSANE_SKIP = " \
+
+CUDA_INSANE_SKIP ?= " \
     already-stripped \
     ldflags \
     textrel \

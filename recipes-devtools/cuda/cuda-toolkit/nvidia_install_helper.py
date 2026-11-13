@@ -1,12 +1,21 @@
-
 #!/usr/bin/env python3
 
 import argparse
 import filecmp
+import hashlib
 import json
 import os
 import shutil
 from pathlib import Path
+
+
+def file_md5(path):
+    digest = hashlib.md5()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+
+    return digest.hexdigest()
 
 
 def selected_components():
@@ -143,6 +152,9 @@ def stage_component(component, source_root, destination, arch, mode, stage_root)
         )
 
     # Component-specific release metadata and licenses.
+    # These need to be moved to bitbakes license not docs dir.
+    licenses = []
+
     for filename in (
         "LICENSE",
         "LICENSE.txt",
@@ -151,12 +163,23 @@ def stage_component(component, source_root, destination, arch, mode, stage_root)
         "CUDA_Toolkit_Release_Notes.txt",
         "cublas_version.txt",
     ):
+        path = source / filename
+
+        if not path.is_file():
+            continue
+
         copy_file(
-            source / filename,
+            path,
             destination / "doc" / component / filename,
             installed,
             stage_root,
         )
+
+        if filename in ("LICENSE", "LICENSE.txt", "EULA.txt"):
+            licenses.append({
+                "file": str(path.relative_to(source_root)),
+                "md5": file_md5(path),
+            })
 
     recognized = {
         "bin", "sbin", "targets", "include", "lib", "lib64",
@@ -179,6 +202,7 @@ def stage_component(component, source_root, destination, arch, mode, stage_root)
     return {
         "component": component,
         "files": list(dict.fromkeys(installed)),
+        "licenses": licenses,
         "unmapped": extras,
     }
 
@@ -237,11 +261,22 @@ def main():
         if original.is_file():
             shutil.copy2(original, destination / filename)
 
+    # Record the top-level CUDA license.
+    licenses = []
+
+    eula = source / "EULA.txt"
+    if eula.is_file():
+        licenses.append({
+            "file": "EULA.txt",
+            "md5": file_md5(eula),
+        })
+
     manifest_path = stage_root / "cuda-manifest.json"
     manifest_path.write_text(json.dumps({
         "mode": args.mode,
         "prefix": args.prefix,
         "architecture": args.arch,
+        "licenses": licenses,
         "components": manifest,
     }, indent=2) + "\n")
 

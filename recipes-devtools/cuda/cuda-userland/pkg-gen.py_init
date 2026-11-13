@@ -1,0 +1,106 @@
+# Dont use this it was a one off shot to generate the intial inc files
+# The only point of this file is tranparencey
+#
+#!/usr/bin/env python3
+
+import argparse
+import json
+from pathlib import Path
+
+FEATURES = (
+    "compute", "systemd", "x11", "wayland", "vulkan", "opengl",
+    "glesv1", "glesv2", "opencl", "video", "firmware", "tools", "html-docs",
+)
+
+def generate_package(name, component):
+    package = f"nvidia-{name}"
+    files = sorted(dict.fromkeys(component["files"]))
+    licenses = component.get("licenses", [])
+
+    lines = [
+        f'PACKAGES =+ " {package}"',
+        "",
+        f'SUMMARY:{package} = "UPDATE_ME {package}"',
+        f'DESCRIPTION:{package} = "UPDATE_ME {package}"',
+        f'SECTION:{package} = "libs"',
+        "",
+    ]
+
+    # License information is evidence for the later SPDX review.
+    # Do not assign a license identifier without verifying its contents.
+    if licenses:
+        lines.append("# License files from NVIDIA's extracted driver:")
+        for license in licenses:
+            lines.append(f'# {license["file"]};md5={license["md5"]}')
+        lines.append(f'# LICENSE:{package} = "UPDATE_ME"')
+        lines.append("")
+
+    lines.append(f'FILES:{package} = " \\')
+
+    for filename in files:
+        lines.append(f'    /{filename.lstrip("/")} \\')
+
+    lines.extend([
+        '"',
+        "",
+        f'RDEPENDS:{package} = ""',
+        "",
+    ])
+
+    return "\n".join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate NVIDIA BitBake package includes from an installation manifest"
+    )
+    parser.add_argument("--json", type=Path, required=True)
+    parser.add_argument("--out-dir", type=Path, required=True)
+    args = parser.parse_args()
+
+    source = args.json.resolve()
+    output = args.out_dir.resolve()
+
+    if not source.is_file():
+        parser.error(f"Manifest not found: {source}")
+
+    manifest = json.loads(source.read_text())
+    components = manifest.get("components", {})
+
+    if not components:
+        parser.error("Manifest contains no components")
+
+    if manifest.get("unmapped"):
+        parser.error(f"Manifest contains {len(manifest['unmapped'])} unmapped files")
+
+    # Ensure each installed path belongs to exactly one package.
+    owners = {}
+
+    for name, component in components.items():
+        for filename in component["files"]:
+            path = "/" + filename.lstrip("/")
+
+            if path in owners and owners[path] != name:
+                parser.error(
+                    f"Duplicate ownership: {path} "
+                    f"({owners[path]} and {name})"
+                )
+
+            owners[path] = name
+
+    output.mkdir(parents=True, exist_ok=True)
+
+    for name, component in sorted(components.items()):
+        package = f"nvidia-{name}"
+        filename = output / f"{package}.inc"
+
+        filename.write_text(generate_package(name, component))
+
+        print(f"{package}: {len(component['files'])} files -> {filename}")
+
+    print(f"\nGenerated {len(components)} package includes")
+    print(f"Total owned files: {len(owners)}")
+
+
+if __name__ == "__main__":
+    main()
