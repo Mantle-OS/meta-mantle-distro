@@ -9,7 +9,6 @@ REQUIRED_DISTRO_FEATURES = "systemd opengl gobject-introspection-data"
 
 SRC_URI = "git://gitlab.freedesktop.org/hadess/switcheroo-control.git;branch=master;protocol=https"
 SRCREV = "2adfa2dff85b9886ce0fddca6863fe9f2eaf54a0"
-S = "${WORKDIR}/git"
 
 DEPENDS = " \
     dbus \

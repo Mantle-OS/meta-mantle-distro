@@ -1,4 +1,4 @@
-DESCRIPTION = "Mantle Os for docker"
+DESCRIPTION = "Mantle Os for docker import"
 LICENSE = "MIT"
 PR = "r0"
 

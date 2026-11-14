@@ -17,7 +17,7 @@ inherit image
 usb_post() {
     echo "mantle_recovery" > ${IMAGE_ROOTFS}/${sysconfdir}/hostname
 }
-ROOTFS_POSTPROCESS_COMMAND := "usb_post;"
+ROOTFS_POSTPROCESS_COMMAND := "usb_post"
 
 PACKAGE_INSTALL = "\
     base-passwd \

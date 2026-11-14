@@ -2,22 +2,16 @@ SUMMARY = "${DESCRIPTION}"
 DESCRIPTION = "Mantle Os console only image"
 LICENSE = "MIT"
 
-IMAGE_FEATURES += " ssh-server-openssh package-management hwcodecs splash "
+IMAGE_FEATURES += " \
+    package-management \
+    hwcodecs \
+"
+
 IMAGE_INSTALL = "\
     ${MACHINE_ESSENTIAL_EXTRA_RDEPENDS} \
-    ${MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS} \
     ${MACHINE_EXTRA_RDEPENDS} \
-    ${MACHINE_EXTRA_RRECOMMENDS} \
-    ${CORE_IMAGE_EXTRA_RDEPENDS} \
     ${MACHINE_FIRMWARE} \
     ${MACHINE_HWCODECS} \
-    ${DISTRO_EXTRA_RDEPENDS} \
-    sudo \
-    adduser \
-    ssh-pregen-hostkeys \
-    packagegroup-base-zeroconf \
-    packagegroup-base-extended \
-    bash-completion \
 "
 
 inherit core-image

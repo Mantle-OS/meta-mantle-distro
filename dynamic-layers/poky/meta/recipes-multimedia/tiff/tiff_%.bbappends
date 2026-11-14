@@ -1,0 +1,4 @@
+PACKAGECONFIG:append = " \
+    zstd \
+    webp \
+"

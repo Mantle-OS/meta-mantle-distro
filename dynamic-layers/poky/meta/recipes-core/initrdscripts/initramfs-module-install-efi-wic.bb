@@ -21,7 +21,7 @@ SRC_URI = "\
     file://init \
 "
 
-S = "${WORKDIR}"
+S = "${UNPACKDIR}"
 
 do_install() {
     install -d ${D}/bin

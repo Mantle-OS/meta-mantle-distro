@@ -8,7 +8,7 @@ inherit qt6-cmake
 
 SRC_URI = "git://github.com/PackageKit/PackageKit-Qt.git;branch=main;protocol=https"
 SRCREV = "87d68852a19fef9961ee2658199d17f25e3dd442"
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 DEPENDS:append = " \
     qtbase6 qtbase6-native \
