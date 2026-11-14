@@ -1,0 +1,13 @@
+diff --git a/src/CMakeLists.txt_bak b/src/CMakeLists.txt
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -94,7 +94,7 @@ INSTALL( TARGETS wv2
+     ARCHIVE DESTINATION lib${LIB_SUFFIX}/static
+ )
+ 
+-INSTALL( EXPORT wvWare DESTINATION lib${LIB_SUFFIX}/wvWare FILE wv2.cmake )
++INSTALL( EXPORT wvWare DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wvWare FILE wv2.cmake )
+ 
+ INSTALL( FILES ${wv2_HEADERS}
+   DESTINATION include/wv2
+

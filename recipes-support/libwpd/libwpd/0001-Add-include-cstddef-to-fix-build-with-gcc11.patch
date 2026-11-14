@@ -1,0 +1,47 @@
+From 723fb0cb6c7594a26a858fc295369122507f0174 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 7 May 2021 23:09:56 +0200
+Subject: [PATCH] Add #include <cstddef> to fix build with gcc11
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Stolen from [1]
+
+[1] https://src.fedoraproject.org/rpms/libwpd/blob/rawhide/f/libwpd-gcc11.patch
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/WPXContentListener.cpp | 1 +
+ src/lib/WPXTable.cpp           | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/lib/WPXContentListener.cpp b/src/lib/WPXContentListener.cpp
+index ab0f9b1..0b559e6 100644
+--- a/src/lib/WPXContentListener.cpp
++++ b/src/lib/WPXContentListener.cpp
+@@ -23,6 +23,7 @@
+  * Corel Corporation or Corel Corporation Limited."
+  */
+ 
++#include <cstddef>
+ #include "WPXContentListener.h"
+ #include "WPXPageSpan.h"
+ #include "libwpd_internal.h"
+diff --git a/src/lib/WPXTable.cpp b/src/lib/WPXTable.cpp
+index 0ad202a..1e68d1d 100644
+--- a/src/lib/WPXTable.cpp
++++ b/src/lib/WPXTable.cpp
+@@ -25,6 +25,7 @@
+  * Corel Corporation or Corel Corporation Limited."
+  */
+ 
++#include <cstddef>
+ #include "WPXTable.h"
+ 
+ #include "libwpd_internal.h"
+-- 
+2.30.2
+

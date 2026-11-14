@@ -1,0 +1,49 @@
+From ed13bcd91383a5edcf2010953cf3287b8b26de9a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Mon, 5 Aug 2019 21:37:07 +0200
+Subject: [PATCH] Use wrappers for gobject-introspection
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With INTROSPECTION_COMPILER not set by configure it is:
+
+Upstream-Status: Inappropriate [oe-specific]
+
+Sun, 2 Feb 2020:
+Adjusted for 6.4.0.3
+
+Mon, 8 Feb 2021
+Adjusted for 7.1.0.3
+
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ sysui/CustomTarget_share.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sysui/CustomTarget_share.mk b/sysui/CustomTarget_share.mk
+index 1f578f5..2a3aac5 100644
+--- a/sysui/CustomTarget_share.mk
++++ b/sysui/CustomTarget_share.mk
+@@ -167,7 +167,7 @@ ifneq ($(INTROSPECTION_SCANNER),)
+ $(share_WORKDIR)/%/LOKDocView-0.1.gir: \
+ 		$(call gb_Library_get_target,libreofficekitgtk)
+ 	mkdir -p $(dir $@)
+-	PYTHONWARNINGS=default g-ir-scanner "${SRCDIR}/include/LibreOfficeKit/LibreOfficeKitGtk.h" \
++	PYTHONWARNINGS=default ${INTROSPECTION_SCANNER} "${SRCDIR}/include/LibreOfficeKit/LibreOfficeKitGtk.h" \
+ 				 "${SRCDIR}/libreofficekit/source/gtk/lokdocview.cxx" \
+                  `${PKG_CONFIG} --cflags gobject-introspection-1.0 gtk+-3.0` \
+ 				 -I"${SRCDIR}/include/" \
+@@ -179,7 +179,7 @@ $(share_WORKDIR)/%/LOKDocView-0.1.gir: \
+ 				 --output="$@" --warn-all --no-libtool
+ 
+ $(share_WORKDIR)/%/LOKDocView-0.1.typelib: $(share_WORKDIR)/%/LOKDocView-0.1.gir
+-	g-ir-compiler "$<" --output="$@"
++	${INTROSPECTION_COMPILER} "$<" --output="$@"
+ 
+ endif
+ 
+-- 
+2.26.2
+

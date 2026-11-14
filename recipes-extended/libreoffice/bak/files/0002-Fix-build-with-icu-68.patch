@@ -1,0 +1,43 @@
+From 389e500a5bda3c463bc3c57f49c23fcd477ece0d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Wed, 2 Dec 2020 22:00:50 +0100
+Subject: [PATCH] Fix build with icu >= 68
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+| <...>/i18npool/source/calendar/calendar_gregorian.cxx:350:40: error: ‘TRUE’ was not declared in this scope
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ i18npool/source/calendar/calendar_gregorian.cxx | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/i18npool/source/calendar/calendar_gregorian.cxx b/i18npool/source/calendar/calendar_gregorian.cxx
+index b7ae49f..3bb1433 100644
+--- a/i18npool/source/calendar/calendar_gregorian.cxx
++++ b/i18npool/source/calendar/calendar_gregorian.cxx
+@@ -33,6 +33,18 @@
+ #include <stdio.h>
+ #include <string.h>
+ 
++// Since icu 68.1 icu we have to:
++#ifndef TRUE
++// Taken from umachibe.h:
++/**
++ * The TRUE value of a UBool.
++ *
++ * @deprecated ICU 68 Use standard "true" instead.
++ */
++#   define TRUE  true
++#endif
++
++
+ #define erDUMP_ICU_CALENDAR 0
+ #define erDUMP_I18N_CALENDAR 0
+ #if erDUMP_ICU_CALENDAR || erDUMP_I18N_CALENDAR
+-- 
+2.26.2
+

@@ -1,0 +1,26 @@
+From a805291dde1bed9f18bab1f01ada8ce2c07c91d0 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Fri, 5 Sep 2025 04:55:45 +0000
+Subject: [PATCH] avoid hide base overload wkssubdoc
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ src/lib/WKS4.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/lib/WKS4.cpp b/src/lib/WKS4.cpp
+index 0e472fa..7173d96 100644
+--- a/src/lib/WKS4.cpp
++++ b/src/lib/WKS4.cpp
+@@ -72,6 +72,8 @@ public:
+ 	//! destructor
+ 	~SubDocument() final {}
+ 
++	using WKSSubDocument::operator==;
++
+ 	//! operator==
+ 	virtual bool operator==(std::shared_ptr<WKSSubDocument> const &doc) const final
+ 	{
+-- 
+2.51.0
+

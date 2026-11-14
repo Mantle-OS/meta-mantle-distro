@@ -1,0 +1,26 @@
+From cf4e6963b84936bb230d0421ce63b273042a75c7 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sun, 7 Sep 2025 03:27:27 +0000
+Subject: [PATCH] cython3 to look for as well
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ CMakeScripts/FindCython.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeScripts/FindCython.cmake b/CMakeScripts/FindCython.cmake
+index 6d06de9e..2d006407 100644
+--- a/CMakeScripts/FindCython.cmake
++++ b/CMakeScripts/FindCython.cmake
+@@ -22,7 +22,7 @@
+ # limitations under the License.
+ #=============================================================================
+ 
+-find_program( CYTHON_EXECUTABLE NAMES cython cython.py 
++find_program( CYTHON_EXECUTABLE NAMES cython cython.py cython3
+               PATHS $ENV{PYTHON_PATH}\\Lib\\site-packages ${PYTHON_PATH}\\Lib\\site-packages)
+ 
+ include( FindPackageHandleStandardArgs )
+-- 
+2.51.0
+

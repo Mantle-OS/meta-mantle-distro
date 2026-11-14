@@ -1,0 +1,43 @@
+From e3f451d4340acef6872126eec84ec557ed9d21bd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Mon, 2 Jul 2018 15:59:24 +0200
+Subject: [PATCH] Workaround build error with gcc8
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/PMDParser.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/lib/PMDParser.cpp b/src/lib/PMDParser.cpp
+index 481f6bf..50c3033 100644
+--- a/src/lib/PMDParser.cpp
++++ b/src/lib/PMDParser.cpp
+@@ -846,6 +846,10 @@ void PMDParser::parseHeader(uint32_t *tocOffset, uint16_t *tocLength)
+   {
+     throw PMDParseException("Endianness marker is corrupt in PMD header.");
+   }
++#if __GNUC__ > 7   
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wcatch-value"
++#endif
+   try
+   {
+     seek(m_input, TABLE_OF_CONTENTS_LENGTH_OFFSET);
+@@ -866,6 +868,9 @@ void PMDParser::parseHeader(uint32_t *tocOffset, uint16_t *tocLength)
+   {
+     throw PMDParseException("Can't find the table of contents offset in the header.");
+   }
++#if __GNUC__ > 7   
++#pragma GCC diagnostic pop
++#endif
+ }
+ 
+ void PMDParser::readNextRecordFromTableOfContents(ToCState &state, const bool subRecord, const uint16_t subRecordType)
+-- 
+2.14.4
+

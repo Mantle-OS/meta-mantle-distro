@@ -1,0 +1,46 @@
+From 2821815a425c4c944e1106f2790945fb09f0ee2a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Thu, 19 Aug 2021 17:52:36 +0200
+Subject: [PATCH] Do not fetch fonts for native tools
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ Makefile.fetch | 19 -------------------
+ 1 file changed, 19 deletions(-)
+
+diff --git a/Makefile.fetch b/Makefile.fetch
+index 3c5b7ed..f76b304 100644
+--- a/Makefile.fetch
++++ b/Makefile.fetch
+@@ -171,25 +171,6 @@ $(WORKDIR)/download: $(BUILDDIR)/config_$(gb_Side).mk $(SRCDIR)/download.lst $(S
+ 		$(call fetch_Optional,MDDS,MDDS_TARBALL) \
+ 		$(call fetch_Optional,ZXING,ZXING_TARBALL) \
+ 		$(call fetch_Optional,MDNSRESPONDER,MDNSRESPONDER_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_CALADEA_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_CARLITO_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_DEJAVU_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_GENTIUM_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_LIBERATION_NARROW_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_LIBERATION_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_LINLIBERTINEG_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_SOURCECODE_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_SOURCESANS_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_SOURCESERIF_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_EMOJIONE_COLOR_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_NOTO_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_CULMUS_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_LIBRE_HEBREW_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_ALEF_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_AMIRI_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_KACST_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_REEM_TARBALL) \
+-		$(call fetch_Optional,MORE_FONTS,FONT_SCHEHERAZADE_TARBALL) \
+ 		$(call fetch_Optional,MSPUB,MSPUB_TARBALL) \
+ 		$(call fetch_Optional,MWAW,MWAW_TARBALL) \
+ 		$(call fetch_Optional,MYTHES,MYTHES_TARBALL) \
+-- 
+2.31.1
+

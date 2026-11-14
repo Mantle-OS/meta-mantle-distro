@@ -1,0 +1,53 @@
+From ec1594b3a9f1959adab19a8f7d5f189510dd4a4f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Wed, 9 Feb 2022 23:55:25 +0100
+Subject: [PATCH] Skip -isystem check
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+It injects host path:
+| ERROR: libreoffice-7.3.0.3-r0 do_configure: QA Issue: This autoconf log indicates errors, it looked at host include and/or library paths while determining system capabilities.
+| Rerun configure task after fixing this. [configure-unsafe]
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ configure.ac | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 6ca795d..f1159a8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3837,25 +3837,7 @@ fi
+ AC_SUBST(CROSS_COMPILING)
+ AC_SUBST(ENABLE_WASM_STRIP)
+ 
+-# Use -isystem (gcc) if possible, to avoid warnings in 3rd party headers.
+-# NOTE: must _not_ be used for bundled external libraries!
+-ISYSTEM=
+-if test "$GCC" = "yes"; then
+-    AC_MSG_CHECKING( for -isystem )
+-    save_CFLAGS=$CFLAGS
+-    CFLAGS="$CFLAGS -isystem /usr/include -Werror"
+-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[ return 0; ]])],[ ISYSTEM="-isystem " ],[])
+-    CFLAGS=$save_CFLAGS
+-    if test -n "$ISYSTEM"; then
+-        AC_MSG_RESULT(yes)
+-    else
+-        AC_MSG_RESULT(no)
+-    fi
+-fi
+-if test -z "$ISYSTEM"; then
+-    # fall back to using -I
+-    ISYSTEM=-I
+-fi
++ISYSTEM=-isystem
+ AC_SUBST(ISYSTEM)
+ 
+ dnl ===================================================================
+-- 
+2.34.1
+

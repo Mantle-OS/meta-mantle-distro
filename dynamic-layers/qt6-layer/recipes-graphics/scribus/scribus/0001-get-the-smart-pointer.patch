@@ -1,0 +1,26 @@
+From cca1266e08f299100a9ea041c81cb8cb0e79f0e6 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sun, 7 Sep 2025 10:09:47 +0000
+Subject: [PATCH] get the smart pointer
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ scribus/plugins/import/pdf/slaoutput.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scribus/plugins/import/pdf/slaoutput.cpp b/scribus/plugins/import/pdf/slaoutput.cpp
+index 57f1bd4ad..5b50ffb26 100644
+--- a/scribus/plugins/import/pdf/slaoutput.cpp
++++ b/scribus/plugins/import/pdf/slaoutput.cpp
+@@ -580,7 +580,7 @@ bool SlaOutputDev::handleWidgetAnnot(Annot* annota, double xCoor, double yCoor,
+ 		FormWidget *fm = m_formWidgets->getWidget(i);
+ 		if (!fm)
+ 			continue;
+-		AnnotWidget *ano = fm->getWidgetAnnotation();
++		AnnotWidget *ano = fm->getWidgetAnnotation().get();
+ 		if (!ano)
+ 			continue;
+ 		if (ano != (AnnotWidget*) annota)
+-- 
+2.51.0
+

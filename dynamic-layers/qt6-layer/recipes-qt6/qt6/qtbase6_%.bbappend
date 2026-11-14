@@ -13,6 +13,10 @@ PACKAGECONFIG += "\
 DEPENDS:x86 += " mesa libdrm "
 PACKAGECONFIG:x86 += " kms eglfs "
 
+DEPENDS:x86-64 += " mesa libdrm "
+PACKAGECONFIG:x86-64 += " kms eglfs "
+
+
 #net
 PACKAGECONFIG += "\
     brotli libproxy gssapi \

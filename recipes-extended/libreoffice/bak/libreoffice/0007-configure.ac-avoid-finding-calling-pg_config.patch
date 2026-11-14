@@ -1,0 +1,47 @@
+From 7b4896cb093d1836a1a13f3f0a8b447c1a0465d1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Sat, 3 Aug 2019 22:53:02 +0200
+Subject: [PATCH] configure.ac: avoid finding/calling pg_config
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [oe-specific]
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ configure.ac | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index f310c00..2573cc1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -10048,18 +10048,12 @@ if test "x$enable_postgresql_sdbc" != "xno"; then
+                 pg_supp_path="$P_SEP$d$pg_supp_path"
+             done
+         fi
+-        AC_PATH_PROG(PGCONFIG, pg_config, ,$PATH$pg_supp_path)
+-        if test -n "$PGCONFIG"; then
+-            POSTGRESQL_INC=-I$(${PGCONFIG} --includedir)
+-            POSTGRESQL_LIB="-L$(${PGCONFIG} --libdir)"
+-        else
+-            PKG_CHECK_MODULES(POSTGRESQL, libpq, [
+-              POSTGRESQL_INC=$POSTGRESQL_CFLAGS
+-              POSTGRESQL_LIB=$POSTGRESQL_LIBS
+-            ],[
+-              AC_MSG_ERROR([pg_config or 'pkg-config libpq' needed; set PGCONFIG if not in PATH])
+-            ])
+-        fi
++        PKG_CHECK_MODULES(POSTGRESQL, libpq, [
++          POSTGRESQL_INC=$POSTGRESQL_CFLAGS
++          POSTGRESQL_LIB=$POSTGRESQL_LIBS
++        ],[
++          AC_MSG_ERROR([pg_config or 'pkg-config libpq' needed; set PGCONFIG if not in PATH])
++        ])
+         FilterLibs "${POSTGRESQL_LIB}"
+         POSTGRESQL_LIB="${filteredlibs}"
+     else
+-- 
+2.21.0
+

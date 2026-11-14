@@ -1,0 +1,32 @@
+From da4a016b7e9c03f36657f684ae62d33fc5a94f9b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Thu, 6 Jun 2019 22:09:44 +0200
+Subject: [PATCH] Fix build with gcc 9
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+| ../../../libfreehand-0.1.2/src/lib/FHCollector.cpp:285:68: error: implicitly-declared 'constexpr libfreehand::FHTransform& libfreehand::FHTransform::operator=(const libfreehand::FHTransform&)' is deprecated [-Werror=deprecated-copy]
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/FHTransform.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/lib/FHTransform.h b/src/lib/FHTransform.h
+index a53e13a..47f40f7 100644
+--- a/src/lib/FHTransform.h
++++ b/src/lib/FHTransform.h
+@@ -20,6 +20,7 @@ struct FHTransform
+   FHTransform();
+   FHTransform(double m11, double m21, double m12, double m22, double m13, double m23);
+   FHTransform(const FHTransform &trafo);
++  FHTransform& operator=(const FHTransform& other) = default;
+ 
+   void applyToPoint(double &x, double &y) const;
+   void applyToArc(double &rx, double &ry, double &rotation, bool &sweep, double &endx, double &endy) const;
+-- 
+2.20.1
+

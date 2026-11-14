@@ -1,0 +1,21 @@
+SOLIBMAJOR ?= 0
+LIBSO      ?= liblpsolve55.so.$(SOLIBMAJOR)
+
+INCLUDES = -I.. -I../bfp -I../bfp/bfp_LUSOL -I../bfp/bfp_LUSOL/LUSOL -I../colamd -I../shared
+CFLAGS   ?=
+CPPFLAGS ?=
+LDFLAGS  ?=
+
+all: lp_solve
+
+lp_solve.o: lp_solve.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC \
+		-DYY_NEVER_INTERACTIVE -DPARSER_LP \
+		-DINVERSE_ACTIVE=INVERSE_LUSOL -DRoleIsExternalInvEngine \
+		$(INCLUDES) -c $< -o $@
+
+lp_solve: lp_solve.o ../lpsolve55/$(LIBSO)
+	$(CC) $(LDFLAGS) -o $@ lp_solve.o -L../lpsolve55 -llpsolve55 -lm -ldl
+
+clean:
+	rm -f lp_solve.o lp_solve

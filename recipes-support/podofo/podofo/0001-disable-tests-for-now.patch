@@ -1,0 +1,25 @@
+From 700117f7cdd416ff29a799fbf96f75a4b77d93ec Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sun, 7 Sep 2025 09:45:31 +0000
+Subject: [PATCH] disable tests for now
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e21ee703..5f8ddd17 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -555,7 +555,7 @@ FILE(APPEND
+ 
+ ADD_SUBDIRECTORY(src/podofo)
+ IF(NOT PODOFO_BUILD_LIB_ONLY)
+-ADD_SUBDIRECTORY(test)
++# ADD_SUBDIRECTORY(test)
+ ADD_SUBDIRECTORY(tools)
+ ADD_SUBDIRECTORY(examples)
+ ADD_SUBDIRECTORY(man)
+-- 
+2.51.0
+

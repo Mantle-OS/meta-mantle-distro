@@ -1,0 +1,131 @@
+From 3914c676ea19c5e668591cab23378a546df44927 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sun, 7 Sep 2025 00:03:39 +0000
+Subject: [PATCH] configure check for cross compile
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ Makefile.am     |  3 ++-
+ configure.ac    | 56 +++++++++++++++++--------------------------------
+ src/Makefile.am |  1 -
+ 3 files changed, 21 insertions(+), 39 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index fbcd78b2..d2c5a202 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -19,7 +19,8 @@
+ # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ # SOFTWARE.
+ 
+-SUBDIRS = src doc test
++SUBDIRS = src
++# doc test
+ DIST_SUBDIRS = $(SUBDIRS)
+ 
+ dist_doc_DATA = ragel.vim
+diff --git a/configure.ac b/configure.ac
+index 6b3a5b4b..a47330a5 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -39,32 +39,41 @@ AC_CHECK_SIZEOF([unsigned long])
+ AC_CHECK_SIZEOF([unsigned long long])
+ AC_CHECK_HEADERS([sys/mman.h sys/wait.h unistd.h])
+ 
++
++AC_ARG_WITH(colm-tools,
++        [AC_HELP_STRING([--with-colm-tools], [location of native colm install])],
++        [
++               COLM="$withval/bin/colm"
++               COLM_WRAP="$withval/bin/colm-wrap"
++        ],
++        []
++)
++
+ AC_ARG_WITH(colm,
+ 	[AC_HELP_STRING([--with-colm], [location of colm install])],
+ 	[
+-		COLM="$withval/bin/colm"
+-		COLM_WRAP="$withval/bin/colm-wrap"
+ 		CPPFLAGS="-I$withval/include ${CPPFLAGS}"
+ 		CPPFLAGS="-I$withval/include/aapl ${CPPFLAGS}"
+ 		LDFLAGS="-L$withval/lib ${LDFLAGS}"
+-		LIBCOLM_LA="$withval/lib/libcolm.la"
+-		LIBFSM_LA="$withval/lib/libfsm.la"
++		LIBCOLM_LA="-lcolm"
++		LIBFSM_LA="-lfsm"
+ 		COLM_SHARE="$withval/share"
+ 	],
+ 	[]
+ )
+-
+-AC_CHECK_FILES(
+-	[$COLM],
+-	[],
+-	[AC_ERROR([colm is required to build ragel])]
+-)
+ AC_SUBST(COLM)
+ AC_SUBST(COLM_WRAP)
+ AC_SUBST(COLM_SHARE)
+ AC_SUBST(LIBCOLM_LA)
+ AC_SUBST(LIBFSM_LA)
+ 
++AS_IF([test "x$cross_compiling" != "xyes"], [
++	AC_CHECK_PROG([HAVE_COLM_TOOL], [colm], [yes], [no])
++	AS_IF([test "x$HAVE_COLM_TOOL" = "xno" -a -z "$COLM"], [
++               AC_MSG_ERROR([colm tool not found; use --with-colm-tools=PREFIX])
++	])
++])
++
+ EXPECTED_COLM_VER=0.14.7
+ INSTALLED_COLM_VER=`$COLM -v | sed -n -e '1 {' -e 's/^.*version //' -e 's/ .*$//' -e p -e '}'`
+ if test "x$INSTALLED_COLM_VER" != "x$EXPECTED_COLM_VER"; then
+@@ -398,33 +407,6 @@ SED_SUBST="$SED_SUBST -e 's|@CRACK_BIN@|${CRACK_BIN}|g'"
+ 
+ AC_SUBST(CRACK_BIN)
+ 	
+-dnl Skip bootstrap process and build using an existing version of colm. Allows us to
+-dnl break colm without breaking the build of colm.
+-dnl 
+-dnl WARNING: DO NOT USE FOR PRODUCTION BUILD
+-dnl
+-dnl Only use this when you need to in order to get colm to build. Using an external
+-dnl colm program (and library) has the consequence that parsing of patterns and
+-dnl constructors in colm programs will also use this external library, since there
+-dnl can only be one set of colm functions linked. It's not possible to use the
+-dnl external parser for parsing the colm program, then use the internal parser for
+-dnl the patterns.
+-AC_ARG_WITH(colm,
+-	[AC_HELP_STRING([--with-colm], [prefix of colm install to build with, instead of bootstrapping])],
+-	[
+-		EXTERNAL_COLM="$withval"
+-		EXTERNAL_INC="-I$withval/include"
+-		EXTERNAL_LIBS="-L$withval/lib"
+-		AC_CHECK_FILES(["$EXTERNAL_COLM/bin/colm"], [],
+-			[AC_ERROR(["could not find $EXTERNAL_COLM/bin/colm"])])
+-	],
+-	[]
+-)
+-
+-AM_CONDITIONAL([EXTERNAL_COLM], [test "x$EXTERNAL_COLM" != x])
+-AC_SUBST(EXTERNAL_COLM)
+-AC_SUBST(EXTERNAL_INC)
+-AC_SUBST(EXTERNAL_LIBS)
+ 
+ mkdir -p src/include
+ test -e src/include/ragel || ln -s .. src/include/ragel
+diff --git a/src/Makefile.am b/src/Makefile.am
+index c4fe531c..377f7aa4 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -39,7 +39,6 @@ nodist_ragel_SOURCES = \
+ 	parse.c rlreduce.cc
+ 
+ ragel_LDADD = $(LIBFSM_LA) $(LIBCOLM_LA) libragel.la
+-ragel_DEPENDENCIES = $(LIBFSM_LA) $(LIBCOLM_LA) libragel.la
+ 
+ BUILT_SOURCES = \
+ 	version.h \
+-- 
+2.51.0
+

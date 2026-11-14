@@ -1,0 +1,31 @@
+From 0f1da792935642bc0d73af867ea5be8323962f19 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Mon, 16 Aug 2021 20:38:28 +0200
+Subject: [PATCH] redland.pc.in: remove rdf's private flags
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* flags are not required
+* fails OE's pkgconfig sanity test
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ redland.pc.in | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/redland.pc.in b/redland.pc.in
+index 3ca3bb9..f92932d 100644
+--- a/redland.pc.in
++++ b/redland.pc.in
+@@ -14,5 +14,4 @@ Description: Redland RDF API and triple store library
+ Requires.private: raptor2 >= @RAPTOR_MIN_VERSION@, rasqal >= @RASQAL_MIN_VERSION@, rasqal <= @RASQAL_MAX_VERSION@
+ Version: @VERSION@
+ Libs: -L${libdir} -lrdf
+-Libs.private: @LIBRDF_LDFLAGS@ @LIBRDF_PKGCONFIG_PRIVATE_LIBS@
+ Cflags: -I${includedir}
+-- 
+2.31.1
+

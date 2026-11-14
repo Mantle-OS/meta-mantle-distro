@@ -1,0 +1,30 @@
+From d70bd0844f3e2160dac8538446eb437dc988e4d9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 5 Jun 2020 16:51:32 +0200
+Subject: [PATCH] Fix build with gcc 10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/MSPUBMetaData.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/lib/MSPUBMetaData.h b/src/lib/MSPUBMetaData.h
+index 9167f4f..7825e37 100644
+--- a/src/lib/MSPUBMetaData.h
++++ b/src/lib/MSPUBMetaData.h
+@@ -13,6 +13,7 @@
+ #include <map>
+ #include <utility>
+ #include <vector>
++#include <cstdint>
+ 
+ #include <librevenge/librevenge.h>
+ 
+-- 
+2.26.2
+

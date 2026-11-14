@@ -1,0 +1,40 @@
+From 489797a235041ca43a288f5ce38aace8975bc987 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Tue, 24 Nov 2020 22:23:42 +0100
+Subject: [PATCH] Fix build with ICU >= 68
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Pending
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/libcdr_utils.cpp | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/lib/libcdr_utils.cpp b/src/lib/libcdr_utils.cpp
+index 09ab42e..54a6fa3 100644
+--- a/src/lib/libcdr_utils.cpp
++++ b/src/lib/libcdr_utils.cpp
+@@ -97,6 +97,17 @@ static unsigned short getEncodingFromICUName(const char *name)
+   return 0;
+ }
+ 
++// Since icu 68.1 icu we have to:
++#ifndef TRUE
++// Taken from umachibe.h:
++/**
++ * The TRUE value of a UBool.
++ *
++ * @deprecated ICU 68 Use standard "true" instead.
++ */
++#   define TRUE  true
++#endif
++
+ static unsigned short getEncoding(const unsigned char *buffer, unsigned bufferLength)
+ {
+   if (!buffer)
+-- 
+2.26.2
+

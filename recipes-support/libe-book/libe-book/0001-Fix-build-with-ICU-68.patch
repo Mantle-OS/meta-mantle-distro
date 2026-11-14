@@ -1,0 +1,38 @@
+From 70a92974df1d3b35811c2354fcec00c791159b82 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Tue, 24 Nov 2020 22:38:21 +0100
+Subject: [PATCH] Fix build with ICU >= 68
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ src/lib/EBOOKCharsetConverter.cpp | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/lib/EBOOKCharsetConverter.cpp b/src/lib/EBOOKCharsetConverter.cpp
+index 0d85fa3..2631ba4 100644
+--- a/src/lib/EBOOKCharsetConverter.cpp
++++ b/src/lib/EBOOKCharsetConverter.cpp
+@@ -26,6 +26,17 @@ class ConverterException
+ {
+ };
+ 
++// Since icu 68.1 icu we have to:
++#ifndef TRUE
++// Taken from umachibe.h:
++/**
++ * The TRUE value of a UBool.
++ *
++ * @deprecated ICU 68 Use standard "true" instead.
++ */
++#   define TRUE  true
++#endif
++
+ /** Guess character set of the text.
+ 
+   @param[in] text the text
+-- 
+2.26.2
+

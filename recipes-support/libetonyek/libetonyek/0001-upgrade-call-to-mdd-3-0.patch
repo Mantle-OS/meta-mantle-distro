@@ -1,0 +1,70 @@
+From 0c6cad057edd49a5e3b5118574316f3061730e84 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Fri, 5 Sep 2025 09:14:52 +0000
+Subject: [PATCH] upgrade call to mdd 3.0
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+---
+ configure.ac           | 25 +++----------------------
+ src/lib/IWORKTable.cpp |  2 +-
+ 2 files changed, 4 insertions(+), 23 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 45dfa11..f795e06 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,8 +24,8 @@ AC_LANG([C++])
+ # Configure options
+ # =================
+ AC_ARG_WITH([mdds],
+-            AS_HELP_STRING([--with-mdds=2.1|2.0|1.5|1.4|1.2|1.0|0.x], [Specify which version of mdds to use (2.1 is the default)]),
+-            [], [with_mdds="2.1"])
++        AS_HELP_STRING([--with-mdds=3.0], [version (3.0 is the default)]),
++        [], [with_mdds="3.0"])
+ 
+ # ===========================
+ # Find required base packages
+@@ -126,26 +126,7 @@ AC_SUBST([GLM_CFLAGS])
+ # =========
+ # Find mdds
+ # =========
+-AS_IF([test "$with_mdds" != "0.x"],
+-    [PKG_CHECK_MODULES([MDDS], [mdds-][$with_mdds])],
+-    [
+-        PKG_CHECK_MODULES([MDDS], [mdds])
+-        AC_MSG_CHECKING([checking if mdds::flat_segment_tree can store values of any type])
+-        old_CPPFLAGS="$CPPFLAGS"
+-        CPPFLAGS="$MDDS_CFLAGS $CPPFLAGS"
+-        AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+-            #include <mdds/flat_segment_tree.hpp>
+-            struct Value {};
+-            mdds::flat_segment_tree<int, Value> tree(0, 4, Value());
+-        ])], [
+-            AC_MSG_RESULT([yes])
+-        ], [
+-            AC_MSG_RESULT([no])
+-            AC_MSG_ERROR([please install mdds >= 0.12.1])
+-        ])
+-        CPPFLAGS="$old_CPPFLAGS"
+-    ]
+-)
++PKG_CHECK_MODULES([MDDS], [mdds-][$with_mdds])
+ 
+ # =================================
+ # Libtool/Version Makefile settings
+diff --git a/src/lib/IWORKTable.cpp b/src/lib/IWORKTable.cpp
+index bde1011..a68f549 100644
+--- a/src/lib/IWORKTable.cpp
++++ b/src/lib/IWORKTable.cpp
+@@ -168,7 +168,7 @@ void parseDateTimeFormat(std::string const &format, librevenge::RVNGPropertyList
+ 
+ void writeBorder(librevenge::RVNGPropertyList &props, const char *name, IWORKGridLine_t &line, unsigned index)
+ {
+-  if (!line.is_tree_valid())
++  if (!line.valid_tree())
+     line.build_tree();
+ 
+   IWORKStylePtr_t style;
+-- 
+2.51.0
+
