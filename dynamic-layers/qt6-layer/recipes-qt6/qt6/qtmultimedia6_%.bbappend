@@ -1,1 +1,1 @@
-PACKAGECONFIG:append = " vaapi"
+PACKAGECONFIG:append:class-target = " vaapi"

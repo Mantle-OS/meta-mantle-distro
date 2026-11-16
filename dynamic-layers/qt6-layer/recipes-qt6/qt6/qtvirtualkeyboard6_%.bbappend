@@ -1,1 +1,1 @@
-PACKAGECONFIG += " hunspell"
+PACKAGECONFIG:append:class-target = " hunspell"

@@ -1,4 +1,4 @@
-SUMMARY = "Office stack (apps, filters & runtime support) for Yocto"
+SUMMARY = "Office stack (apps, filters & runtime support) for Mantle"
 DESCRIPTION = "Meta-package that pulls in document apps, a wide set of import/export filters, \
 and common runtime support libraries used by office/document-processing tools."
 LICENSE = "MIT"
@@ -70,7 +70,7 @@ SUMMARY:${PN}-graphics = "Various graphics libraies and programs like inkscape"
 DESCRIPTION:${PN}-graphics = "Small set of graphics packages for the office suite"
 RRECOMMENDS:${PN}-graphics = " \
     lib2geom \
-    colm \
+    colm-native \
     inkscape \
     scribus \
 "

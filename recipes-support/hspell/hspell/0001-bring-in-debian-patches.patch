@@ -4,6 +4,8 @@ Date: Fri, 12 Sep 2025 02:34:23 +0000
 Subject: [PATCH] bring in debian patches
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Pending
 ---
  Makefile.in |  6 +++---
  WHATSNEW    | 12 ++++++------

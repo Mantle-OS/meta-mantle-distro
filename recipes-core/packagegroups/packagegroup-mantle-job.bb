@@ -22,7 +22,8 @@ RDEPENDS:${PN} = " \
     zstd zstd-dev \
     zlib zlib-dev \
     libudev libudev-dev \
-    yaml-cpp yaml-cpp-dev nlohmann-json \
+    yaml-cpp yaml-cpp-dev \
+    nlohmann-json \
     libusb-1.0 libusb-1.0-dev \
     libalsa libalsa-dev \
     libinput libinput-dev \

@@ -1,1 +1,1 @@
-PACKAGECONFIG += " flite "
+PACKAGECONFIG:append:class-target = " flite"

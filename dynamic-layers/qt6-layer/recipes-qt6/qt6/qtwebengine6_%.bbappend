@@ -1,3 +1,1 @@
-PACKAGECONFIG += " \
-    proprietary-codecs \
-"
+PACKAGECONFIG:append:class-target = " proprietary-codecs"

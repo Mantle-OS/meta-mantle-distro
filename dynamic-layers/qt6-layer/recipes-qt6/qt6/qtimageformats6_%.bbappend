@@ -1,4 +1,1 @@
-PACKAGECONFIG += " \
-    jasper \
-    mng \
-" 
+PACKAGECONFIG:append:class-target = " jasper mng"

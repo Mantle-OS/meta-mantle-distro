@@ -4,6 +4,7 @@ Date: Fri, 12 Sep 2025 03:27:18 +0000
 Subject: [PATCH] fix install perl madness
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+Upstream-Status: Pending
 ---
  binarize-desc.pl | 3 +--
  genprefixes.pl   | 3 +--

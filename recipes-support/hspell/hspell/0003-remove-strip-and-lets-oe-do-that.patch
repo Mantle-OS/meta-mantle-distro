@@ -4,6 +4,7 @@ Date: Fri, 12 Sep 2025 03:44:19 +0000
 Subject: [PATCH] remove strip and lets oe do that
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+Upstream-Status: Pending
 ---
  Makefile.in | 3 ---
  1 file changed, 3 deletions(-)

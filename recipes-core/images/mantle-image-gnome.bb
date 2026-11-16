@@ -1,11 +1,25 @@
 SUMMARY = "${DESCRIPTION}"
-DESCRIPTION = "Builds the simple gnome image with a couple of system  calls"
+DESCRIPTION = "Mantle Os GNOME desktop image."
 LICENSE = "MIT"
-PR = "r0"
 
+inherit features_check
 require mantle-image-full.bb
 
-IMAGE_INSTALL:append = " \
-    packagegroup-mantle-gnome \
+REQUIRED_DISTRO_FEATURES = " \
+    opengl \
+    x11 \
+    wayland \
+    pam \
+    gobject-introspection-data \
 "
 
+IMAGE_INSTALL:append = " \
+    packagegroup-gnome-apps \
+    packagegroup-gnome-desktop \
+    gdm \
+    xserver-xorg \
+    xwayland \
+"
+
+export IMAGE_BASENAME = "mantle-image-gnome"
+SYSTEMD_DEFAULT_TARGET = "graphical.target"
