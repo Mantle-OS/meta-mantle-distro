@@ -1,0 +1,42 @@
+From ed8bd0ee63d40d1fb322d6bc3353539f74dadc06 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 20:27:47 -0600
+Subject: [PATCH] display: avoid X11 macro pollution from cairomm umbrella
+ header
+
+Replace the cairomm umbrella header with the specific context, pattern,
+and surface headers required by cairo-utils.h.
+
+The umbrella header transitively includes cairo-xlib.h and X11/Xlib.h,
+introducing the None macro into unrelated Inkscape headers.
+
+This collides with scoped enum members such as Traits::None and
+SPDocument::ImportRoot::None, causing widespread compilation failures.
+
+Using narrower cairomm headers prevents the macro collision while
+preserving X11 support and the existing Cairo functionality.
+
+Upstream-Status: Pending
+---
+ src/display/cairo-utils.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/display/cairo-utils.h b/src/display/cairo-utils.h
+index 4e4010feae..2e1493ac4b 100644
+--- a/src/display/cairo-utils.h
++++ b/src/display/cairo-utils.h
+@@ -14,7 +14,10 @@
+ #define SEEN_INKSCAPE_DISPLAY_CAIRO_UTILS_H
+ 
+ #include <2geom/forward.h>
+-#include <cairomm/cairomm.h>
++#include <cairomm/context.h>
++#include <cairomm/pattern.h>
++#include <cairomm/surface.h>
++
+ #include "style.h"
+ 
+ typedef struct _GdkPixbuf GdkPixbuf;
+-- 
+2.55.0
+

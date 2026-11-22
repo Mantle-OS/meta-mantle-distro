@@ -1,0 +1,25 @@
+From b014b4bed0c557fe727bd788de637ddc806e2d13 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 18:41:37 -0600
+Subject: [PATCH] odfgen: include cstdint for uint8_t
+
+Upstream-Status: Pending
+---
+ src/OdfGenerator.cxx | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/OdfGenerator.cxx b/src/OdfGenerator.cxx
+index f29c480..f0c9dd3 100644
+--- a/src/OdfGenerator.cxx
++++ b/src/OdfGenerator.cxx
+@@ -37,6 +37,7 @@
+ #include <memory>
+ #include <string>
+ #include <stack>
++#include <cstdint>
+ 
+ #include <librevenge/librevenge.h>
+ 
+-- 
+2.55.0
+

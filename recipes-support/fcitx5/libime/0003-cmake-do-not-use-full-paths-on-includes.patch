@@ -1,0 +1,54 @@
+From 3c5d2535b94d03bac3ec5df68c823e2eb1d38140 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 15:48:50 -0600
+Subject: [PATCH] cmake Do not use full paths on includes
+
+Upstream-Status: Pending
+---
+ src/libime/core/CMakeLists.txt   | 2 +-
+ src/libime/pinyin/CMakeLists.txt | 2 +-
+ src/libime/table/CMakeLists.txt  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/libime/core/CMakeLists.txt b/src/libime/core/CMakeLists.txt
+index 5c089ce..27e66ae 100644
+--- a/src/libime/core/CMakeLists.txt
++++ b/src/libime/core/CMakeLists.txt
+@@ -83,7 +83,7 @@ set_target_properties(IMECore
+ target_include_directories(IMECore PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>
+-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_INCLUDEDIR}/LibIME>)
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/LibIME>)
+ 
+ target_link_libraries(IMECore PUBLIC Fcitx5::Utils Boost::boost PRIVATE kenlm Boost::iostreams PkgConfig::ZSTD)
+ 
+diff --git a/src/libime/pinyin/CMakeLists.txt b/src/libime/pinyin/CMakeLists.txt
+index e8a9306..8582ee8 100644
+--- a/src/libime/pinyin/CMakeLists.txt
++++ b/src/libime/pinyin/CMakeLists.txt
+@@ -41,7 +41,7 @@ set_target_properties(IMEPinyin PROPERTIES
+ target_include_directories(IMEPinyin PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>
+-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_INCLUDEDIR}/LibIME>)
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/LibIME>)
+ 
+ target_link_libraries(IMEPinyin PUBLIC Fcitx5::Utils Boost::boost LibIME::Core PRIVATE Boost::iostreams PkgConfig::ZSTD)
+ 
+diff --git a/src/libime/table/CMakeLists.txt b/src/libime/table/CMakeLists.txt
+index b1de265..c325120 100644
+--- a/src/libime/table/CMakeLists.txt
++++ b/src/libime/table/CMakeLists.txt
+@@ -33,7 +33,7 @@ set_target_properties(IMETable
+ target_include_directories(IMETable PUBLIC
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../..>
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../..>
+-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_INCLUDEDIR}/LibIME>)
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/LibIME>)
+ 
+ target_link_libraries(IMETable PUBLIC Fcitx5::Utils Boost::boost LibIME::Core PRIVATE Boost::iostreams PkgConfig::ZSTD)
+ 
+-- 
+2.55.0
+

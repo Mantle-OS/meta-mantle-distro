@@ -21,7 +21,6 @@ DEPENDS = " \
     pkgconfig-native \
     lua \
 "
-#  cppunit-native
 
 SRC_URI = " \
     gitsm://github.com/podofo/podofo.git;branch=master;protocol=https \
@@ -30,4 +29,7 @@ SRC_URI = " \
 SRCREV = "6667ddb434ef4271fab469d6b6e9623d1c12a0bf"
 PV = "0.9.8"
 
-EXTRA_OECMAKE:append = " -DPODOFO_BUILD_SHARED=TRUE"
+EXTRA_OECMAKE:append = " \
+    -DPODOFO_BUILD_SHARED=TRUE \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+"

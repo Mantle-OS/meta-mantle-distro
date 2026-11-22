@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b454748513fc18f7a002e2a2ae0f653d"
 
 PV = "0.14.7"
 
-SRC_URI = "git://github.com/adrian-thurston/colm.git;branch=master;protocol=https"
+SRC_URI = "git://github.com/adrian-thurston/colm.git;branch=main;protocol=https"
 SRCREV = "e88bda068d4a25f2afa7f48821e0f539405c8c6a"
 
 inherit autotools-brokensep pkgconfig

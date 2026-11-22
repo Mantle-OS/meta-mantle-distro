@@ -1,5 +1,7 @@
 inherit java
 
+DEPENDS:append = " maven-native"
+
 # Where the POM lives
 MVN_POM ?= "${S}/pom.xml"
 

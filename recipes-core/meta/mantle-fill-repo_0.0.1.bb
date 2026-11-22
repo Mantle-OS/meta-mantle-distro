@@ -19,13 +19,12 @@ PACKAGES = " \
     ${PN}-qt6-world \
     ${@bb.utils.contains("BBFILE_COLLECTIONS", "qt5-layer ", " ${PN}-qt5-world ${PN}-qt5-extra-world ", "", d)} \
     ${PN}-java-world \
-    ${@bb.utils.contains("BBFILE_COLLECTIONS", "chromium-browser-layer", "${PN}-chrome-world", "", d)} \
-    ${@bb.utils.contains("BBFILE_COLLECTIONS", "firefox-browser-layer", "${PN}-firefox-world", "", d)} \
 "
-# dirty 
-# ${PN}-mono-world 
-# ${PN}-neural-network-world tensorflow fails here
-# end dirty
+# dirty or not in master
+#MASTER     ${@bb.utils.contains("BBFILE_COLLECTIONS", "chromium-browser-layer", "${PN}-chrome-world", "", d)}
+#MASTER     ${@bb.utils.contains("BBFILE_COLLECTIONS", "firefox-browser-layer", "${PN}-firefox-world", "", d)}
+#DIRTY      ${PN}-mono-world
+
 RRECOMMENDS:${PN} = "\
     ${PN}-poky-world \
 "
@@ -81,23 +80,23 @@ RRECOMMENDS:${PN}-clang-world = "\
     clang \
 "
 
-# csharp 
-SUMMARY:${PN}-mono-world = "c sharp world"
-RRECOMMENDS:${PN}-mono-world = "\
-    mono-upnp \
-    dbus-sharp \
-    dbus-sharp-glib \
-    gtk-sharp \
-    mono-xsp \
-    monotools-server \
-    taglib-sharp \
-    fsharp \
-    libgdiplus \
-    mono-basic \
-    mono-dev \
-    msbuild \
-    dotnet \
-"
+# csharp nothing on master yet but should double check
+#SUMMARY:${PN}-mono-world = "c sharp world"
+#RRECOMMENDS:${PN}-mono-world = "
+#    mono-upnp
+#    dbus-sharp
+#    dbus-sharp-glib
+#    gtk-sharp
+#    mono-xsp
+#    monotools-server
+#    taglib-sharp
+#    fsharp
+#    libgdiplus
+#    mono-basic
+#    mono-dev
+#    msbuild
+#    dotnet
+#"
 
 # java FROM the read me
 #| JVM / Architecture | arm | aarch64 | riscv64 | x64 | x86 |
@@ -106,6 +105,7 @@ RRECOMMENDS:${PN}-mono-world = "\
 #| JRE 11             | ✅  | ✅      | ❌      | ✅  | ❌  |
 #| JRE 17             | ✅  | ✅      | ✅      | ✅  | ❌  |
 #| JRE 21             | ❌  | ✅      | ✅      | ✅  | ❌  |
+#| JRE 25             | ❌  | ✅      | ✅      | ✅  | ❌  |
 # create the subpackage
 SUMMARY:${PN}-java-world = "Java runtimes/toolchains bundle (arch-aware)"
 python __set_java_world_recos () {
@@ -113,13 +113,15 @@ python __set_java_world_recos () {
     recos = ''
     if tune == 'x86_64':
         # x64: JRE 8/11/17/21
-        recos = 'openjdk-21-jdk openjdk-21-jre ' \
+        recos = 'openjdk-25-jdk openjdk-25-jre ' \
+                'openjdk-21-jdk openjdk-21-jre ' \
                 'openjdk-17-jdk openjdk-17-jre ' \
                 'openjdk-11-jdk openjdk-11-jre ' \
                 'openjdk-8-jdk  openjdk-8-jre'
     elif tune == 'aarch64':
         # arm64: JRE 8/11/17/21
-        recos = 'openjdk-21-jdk openjdk-21-jre ' \
+        recos = 'openjdk-25-jdk openjdk-25-jre ' \
+                'openjdk-21-jdk openjdk-21-jre ' \
                 'openjdk-17-jdk openjdk-17-jre ' \
                 'openjdk-11-jdk openjdk-11-jre ' \
                 'openjdk-8-jdk  openjdk-8-jre'
@@ -130,7 +132,8 @@ python __set_java_world_recos () {
                 'openjdk-8-jdk  openjdk-8-jre'
     elif tune == 'riscv64':
         # riscv64: JRE 17/21 only
-        recos = 'openjdk-21-jdk openjdk-21-jre ' \
+        recos = 'openjdk-25-jdk openjdk-25-jre ' \
+                'openjdk-21-jdk openjdk-21-jre ' \
                 'openjdk-17-jdk openjdk-17-jre'
     else:
         # i586/i686 (x86) or anything unsupported: recommend nothing
@@ -140,21 +143,21 @@ python __set_java_world_recos () {
 }
 
 
+# nothing on master yet :(
+#SUMMARY:${PN}-chrome-world = "Mantle OS Chromium Browser Suite"
+#RRECOMMENDS:${PN}-chrome-world = "
+#    ${@bb.utils.contains("DISTRO_FEATURES", "webengine",
+#        bb.utils.contains("DISTRO_FEATURES", "x11", " chromium-x11 ", "", d) +
+#        bb.utils.contains("DISTRO_FEATURES", "wayland", " chromium-ozone-wayland ", "", d),
+#    "", d)}
+#"
 
-SUMMARY:${PN}-chrome-world = "Mantle OS Chromium Browser Suite"
-RRECOMMENDS:${PN}-chrome-world = " \
-    ${@bb.utils.contains("DISTRO_FEATURES", "webengine", \
-        bb.utils.contains("DISTRO_FEATURES", "x11", " chromium-x11 ", "", d) + \
-        bb.utils.contains("DISTRO_FEATURES", "wayland", " chromium-ozone-wayland ", "", d), \
-    "", d)} \
-"
-
-SUMMARY:${PN}-firefox-world = "Mantle OS Firefox Browser Suite"
-RRECOMMENDS:${PN}-firefox-world = " \
-    ${@bb.utils.contains("DISTRO_FEATURES", "webengine", \
-        bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2", "firefox firefox-l10n-en-us", "", d), \
-    "", d)} \
-"
+#SUMMARY:${PN}-firefox-world = "Mantle OS Firefox Browser Suite"
+#RRECOMMENDS:${PN}-firefox-world = "
+#    ${@bb.utils.contains("DISTRO_FEATURES", "webengine",
+#        bb.utils.contains("BBFILE_COLLECTIONS", "meta-python2", "firefox firefox-l10n-en-us", "", d),
+#    "", d)}
+#"
 
 # qt5
 SUMMARY:${PN}-qt5-world  = "qt5 packages"
@@ -204,16 +207,20 @@ RRECOMMENDS:${PN}-qt6-world = " \
     ${@bb.utils.contains("BBFILE_COLLECTIONS", "qt6-layer", " packagegroup-qt6-essentials  packagegroup-qt6-addons packagegroup-qt6-modules ", "", d)} \
 "
 
-# meta-neural-network I need to look into this some more there are some broken things
-# SUMMARY:${PN}-neural-network-world  = "some of the neural network stuff comming"
-# RRECOMMENDS:${PN}-neural-network-world = "
+# meta-mantle I need to look into this some more there are some broken things
+# SUMMARY:${PN}-mantle-ai-world  = "some of the neural network stuff comming"
+# RRECOMMENDS:${PN}-mantle-ai-world = "
 #     ml-api
+#     tensorflow-lite
 #     openblas
-#     nnstreamer
-#     nntrainer
-#     googletest
+#     nnstreamer nntrainer
 #     ssat
+#     job
+#     cuda
+#     ggml
+#     llama-cpp
+#     whisper-cpp
+#     python3-hf-hub
 # "
-# tensorflow-lite
 
 EXCLUDE_FROM_WORLD = "1"

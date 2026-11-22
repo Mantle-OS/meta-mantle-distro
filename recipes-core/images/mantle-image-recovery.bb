@@ -14,10 +14,10 @@ export IMAGE_BASENAME = "mantle-image-recovery"
 IMAGE_FSTYPES = "cpio.gz"
 
 inherit image
-usb_post() {
+update_host_name() {
     echo "mantle_recovery" > ${IMAGE_ROOTFS}/${sysconfdir}/hostname
 }
-ROOTFS_POSTPROCESS_COMMAND := "usb_post"
+ROOTFS_POSTPROCESS_COMMAND := "update_host_name"
 
 PACKAGE_INSTALL = "\
     base-passwd \

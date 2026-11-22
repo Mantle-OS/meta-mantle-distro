@@ -4,6 +4,7 @@ Date: Fri, 5 Sep 2025 04:55:45 +0000
 Subject: [PATCH] avoid hide base overload wkssubdoc
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+Upstream-Status: Pending
 ---
  src/lib/WKS4.cpp | 2 ++
  1 file changed, 2 insertions(+)

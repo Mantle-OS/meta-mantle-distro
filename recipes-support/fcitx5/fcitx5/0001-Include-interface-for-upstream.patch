@@ -1,0 +1,86 @@
+From bf72dc7ec422efe2589038656ae2e8ca4058b9f2 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 16:39:53 -0600
+Subject: [PATCH] Include interface for upstream
+
+Upstream-Status: Pending
+---
+ src/lib/fcitx-utils/Fcitx5Macros.cmake        | 21 +++++++++++++++++++
+ .../fcitx-utils/Fcitx5ModuleTemplate.cmake.in |  2 +-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/src/lib/fcitx-utils/Fcitx5Macros.cmake b/src/lib/fcitx-utils/Fcitx5Macros.cmake
+index 9c94dee1..90c2e243 100644
+--- a/src/lib/fcitx-utils/Fcitx5Macros.cmake
++++ b/src/lib/fcitx-utils/Fcitx5Macros.cmake
+@@ -103,6 +103,7 @@ endfunction()
+ set(_Fcitx5ModuleMacros_SELF "${CMAKE_CURRENT_LIST_FILE}")
+ get_filename_component(_Fcitx5ModuleMacros_SELF_DIR "${_Fcitx5ModuleMacros_SELF}" PATH)
+ 
++
+ macro(fcitx5_export_module EXPORTNAME)
+     set(options INSTALL)
+     set(one_value_args BUILD_INCLUDE_DIRECTORIES TARGET INCLUDE_INSTALL_DIR LIB_INSTALL_DIR
+@@ -110,21 +111,39 @@ macro(fcitx5_export_module EXPORTNAME)
+     set(multi_value_args HEADERS)
+     cmake_parse_arguments(FEM
+         "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
++
+     if (FEM_INCLUDE_INSTALL_DIR)
+         set(_MODULE_HEADER_DIR "${FEM_INCLUDE_INSTALL_DIR}")
+     else()
+         set(_MODULE_HEADER_DIR "${FCITX_INSTALL_MODULE_HEADER_DIR}/${FEM_TARGET}")
+     endif()
++
+     if (NOT FEM_LIB_INSTALL_DIR)
+         set(FEM_LIB_INSTALL_DIR "${FCITX_INSTALL_LIBDIR}")
+     endif()
++
+     set(FEM_EXPORTNAME "${EXPORTNAME}")
+     add_library(${FEM_TARGET}-interface INTERFACE)
+     add_library(Fcitx5::Module::${EXPORTNAME} ALIAS ${FEM_TARGET}-interface)
+     set_target_properties(${FEM_TARGET}-interface PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${FEM_BUILD_INCLUDE_DIRECTORIES}")
++
++    # Build-tree configuration.
++    set(FEM_INTERFACE_INCLUDE_DIR "${FEM_BUILD_INCLUDE_DIRECTORIES}")
+     configure_file(
+         "${_Fcitx5Macro_SELF_DIR}/Fcitx5ModuleTemplate.cmake.in"
+         "${CMAKE_CURRENT_BINARY_DIR}/Fcitx5Module${EXPORTNAME}.cmake" @ONLY)
++
++    # Installed configuration with relocatable include paths.
++    get_filename_component(_MODULE_HEADER_ABS_DIR
++        "${_MODULE_HEADER_DIR}" ABSOLUTE BASE_DIR "${CMAKE_INSTALL_PREFIX}")
++    get_filename_component(_MODULE_CONFIG_ABS_DIR
++        "${FEM_LIB_INSTALL_DIR}/cmake/Fcitx5Module${EXPORTNAME}"
++        ABSOLUTE BASE_DIR "${CMAKE_INSTALL_PREFIX}")
++
++    file(RELATIVE_PATH _MODULE_HEADER_REL_DIR
++        "${_MODULE_CONFIG_ABS_DIR}" "${_MODULE_HEADER_ABS_DIR}")
++
++    set(FEM_INTERFACE_INCLUDE_DIR "\${CMAKE_CURRENT_LIST_DIR}/${_MODULE_HEADER_REL_DIR}")
+     configure_file(
+         "${_Fcitx5Macro_SELF_DIR}/Fcitx5ModuleTemplate.cmake.in"
+         "${CMAKE_CURRENT_BINARY_DIR}/Fcitx5Module${EXPORTNAME}Config.cmake" @ONLY)
+@@ -132,7 +151,9 @@ macro(fcitx5_export_module EXPORTNAME)
+     if (NOT FEM_VERSION)
+         set(FEM_VERSION ${PROJECT_VERSION})
+     endif()
++
+     write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/Fcitx5Module${EXPORTNAME}ConfigVersion.cmake" VERSION "${FEM_VERSION}" COMPATIBILITY AnyNewerVersion)
++
+     if(FEM_INSTALL)
+         install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Fcitx5Module${EXPORTNAME}Config.cmake"
+                       "${CMAKE_CURRENT_BINARY_DIR}/Fcitx5Module${EXPORTNAME}ConfigVersion.cmake" DESTINATION "${FEM_LIB_INSTALL_DIR}/cmake/Fcitx5Module${EXPORTNAME}")
+diff --git a/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in b/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
+index e51f044a..4cf71e38 100644
+--- a/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
++++ b/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
+@@ -4,4 +4,4 @@ endif()
+ 
+ add_library(@FEM_TARGET@-interface INTERFACE)
+ add_library(Fcitx5::Module::@FEM_EXPORTNAME@ ALIAS @FEM_TARGET@-interface)
+-set_target_properties(@FEM_TARGET@-interface PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@_MODULE_HEADER_DIR@")
++set_target_properties(@FEM_TARGET@-interface PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@FEM_INTERFACE_INCLUDE_DIR@")
+-- 
+2.55.0
+

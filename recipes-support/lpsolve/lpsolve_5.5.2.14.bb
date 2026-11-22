@@ -11,21 +11,20 @@ SRC_URI = " \
     file://Makefile_lpsolve55 \
     file://Makefile_lp_solve \
 "
-
 SRCREV = "305e32cbfae961d580336258caeaeaa7c5538b91"
 
 do_configure() {
-    install -m 0644 ${WORKDIR}/Makefile_lpsolve55 ${S}/lpsolve55/Makefile
-    install -m 0644 ${WORKDIR}/Makefile_lp_solve ${S}/lp_solve/Makefile
+    install -m 0644 ${UNPACKDIR}/Makefile_lpsolve55 ${S}/lpsolve55/Makefile
+    install -m 0644 ${UNPACKDIR}/Makefile_lp_solve ${S}/lp_solve/Makefile
 }
 
 SOLIBMAJOR = "5"
 do_compile() {
-    oe_runmake -C ${S}/lpsolve55 \
+    oe_runmake -r -C ${S}/lpsolve55 \
         CC="${CC}" AR="${AR}" RANLIB="${RANLIB}" \
         CFLAGS="${CFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" \
         SOLIBMAJOR="${SOLIBMAJOR}"
-    oe_runmake -C ${S}/lp_solve \
+    oe_runmake -r -C ${S}/lp_solve \
         CC="${CC}" CFLAGS="${CFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" \
         SOLIBMAJOR="${SOLIBMAJOR}"
 }

@@ -1,0 +1,31 @@
+From 0cb8a288adda23af21630cc29ec59f682a4bc15a Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 15:24:20 -0600
+Subject: [PATCH] wv2-0.4.2-disable-libtool
+
+Subject: [PATCH] wv2: disable obsolete libtool file generation
+
+CMake 4 rejects reading the LOCATION property of build targets.
+The generated libtool archive is unnecessary for the CMake build.
+
+Upstream-Status: Backport [https://gitweb.gentoo.org/repo/gentoo.git/commit/?id=658157dd]
+---
+ src/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index b02e9dd..7132192 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -102,6 +102,6 @@ INSTALL( FILES ${wv2_HEADERS}
+ 
+ # libtool files are useless for Visual C++ and Borland C++
+ IF( NOT MSVC AND NOT BORLAND )
+-  INCLUDE( ${wvWare_SOURCE_DIR}/cmake/MacroCreateLibtoolFile.cmake )
+-  CREATE_LIBTOOL_FILE( wv2 /lib${LIB_SUFFIX} )
++  # INCLUDE( ${wvWare_SOURCE_DIR}/cmake/MacroCreateLibtoolFile.cmake )
++  # CREATE_LIBTOOL_FILE( wv2 /lib${LIB_SUFFIX} )
+ ENDIF( NOT MSVC AND NOT BORLAND )
+-- 
+2.55.0
+

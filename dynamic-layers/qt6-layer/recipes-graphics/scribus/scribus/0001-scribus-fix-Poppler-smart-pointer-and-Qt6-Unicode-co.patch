@@ -1,0 +1,51 @@
+From 2d4b83a956a7bfefa3cb539a3381317e0894b303 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 16:15:44 -0600
+Subject: [PATCH] scribus: fix Poppler smart pointer and Qt6 Unicode
+ compatibility
+
+Adapt PDF widget annotation access to Poppler's smart pointer API.
+
+Resolve Qt6 QString::arg overload ambiguity by explicitly converting
+QChar::unicode() to uint and using a UTF-16 character literal.
+
+Upstream-Status: Pending
+---
+ scribus/plugins/import/pdf/slaoutput.cpp | 2 +-
+ scribus/util_text.cpp                    | 7 ++++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/scribus/plugins/import/pdf/slaoutput.cpp b/scribus/plugins/import/pdf/slaoutput.cpp
+index 57f1bd4ad..5b50ffb26 100644
+--- a/scribus/plugins/import/pdf/slaoutput.cpp
++++ b/scribus/plugins/import/pdf/slaoutput.cpp
+@@ -580,7 +580,7 @@ bool SlaOutputDev::handleWidgetAnnot(Annot* annota, double xCoor, double yCoor,
+ 		FormWidget *fm = m_formWidgets->getWidget(i);
+ 		if (!fm)
+ 			continue;
+-		AnnotWidget *ano = fm->getWidgetAnnotation();
++		AnnotWidget *ano = fm->getWidgetAnnotation().get();
+ 		if (!ano)
+ 			continue;
+ 		if (ano != (AnnotWidget*) annota)
+diff --git a/scribus/util_text.cpp b/scribus/util_text.cpp
+index 48194d3e7..9b0c3a44d 100644
+--- a/scribus/util_text.cpp
++++ b/scribus/util_text.cpp
+@@ -99,9 +99,10 @@ QString stringToUnicode(const QString &text)
+ {
+ 	QString out;
+ 
+-	for (auto c : text)
+-		out += QString("U+%1,").arg(c.unicode(), 4, 16, QChar('0')).toUpper();
+-
++	for (auto c : text) {
++		const uint code = static_cast<uint>(c.unicode());
++		out += QString("U+%1,").arg(code, 4, 16, QChar(u'0')).toUpper();
++	}
+ 	return out.mid(0, out.length() -1);
+ 
+ }
+-- 
+2.55.0
+

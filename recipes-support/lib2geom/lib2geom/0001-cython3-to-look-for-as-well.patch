@@ -4,6 +4,8 @@ Date: Sun, 7 Sep 2025 03:27:27 +0000
 Subject: [PATCH] cython3 to look for as well
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Backport [https://gitlab.com/inkscape/lib2geom/-/commit/432a318b0c7258e42be83623214748916aca3380]
 ---
  CMakeScripts/FindCython.cmake | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

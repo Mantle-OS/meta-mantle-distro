@@ -3,6 +3,7 @@ From: JosephMillsAtWork <josephjamesmills@gmail.com>
 Date: Sun, 7 Sep 2025 09:45:31 +0000
 Subject: [PATCH] disable tests for now
 
+Upstream-Status: Inappropriate [oe specific]
 ---
  CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

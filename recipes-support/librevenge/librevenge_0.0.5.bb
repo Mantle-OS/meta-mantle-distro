@@ -10,8 +10,9 @@ SRC_URI = " \
 #file://0001-Fix-build-with-gcc8.patch
 SRC_URI[sha256sum] = "5892ca6796f7a2a93d580832e907e849b19d980b40d326a283b18877ab6de0c5"
 inherit autotools pkgconfig
-DEPENDS = "cppunit zlib boost"
+DEPENDS:append = " \
+    cppunit \
+    zlib \
+    boost \
+"
 
-do_install:append() {
-    sed -i '/^Libs:/ s/$/ -lboost_system/' ${D}${libdir}/pkgconfig/librevenge-0.0.pc
-}

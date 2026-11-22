@@ -1,10 +1,15 @@
 inherit java
 
+GRADLE_VERSION    ?= "8"
+GRADLE_NATIVE     = "gradle-${GRADLE_VERSION}-native"
 GRADLE_BUILD_FILE ?= "${S}/build.gradle"
 GRADLE_TASKS      ?= "jar"
 GRADLE_OFFLINE    ?= "1"
 GRADLE_USER_HOME  ?= "${B}/.gradle"
 GRADLE_CACHE      ?= "${GRADLE_USER_HOME}/caches"
+
+
+DEPENDS:append = " ${GRADLE_NATIVE}"
 
 # Optional: vendor a gradle cache snapshot
 # SRC_URI += "file://gradle-cache.tar.zst"
@@ -22,7 +27,8 @@ do_compile() {
     export PATH="${STAGING_BINDIR_NATIVE}:$PATH"
 
     cd ${S}
-    gradle ${OFFLINE_FLAG} --no-daemon ${GRADLE_TASKS}
+    gradle-${GRADLE_VERSION} ${OFFLINE_FLAG} --no-daemon ${GRADLE_TASKS}
+
 }
 
 do_install() {

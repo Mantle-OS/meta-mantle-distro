@@ -1,6 +1,6 @@
 inherit java
 
-KOTLIN_VERSION ?= "1.9.24"
+KOTLIN_VERSION ?= "2.4.21"
 
 KOTLIN_HOME_NATIVE ?= "${STAGING_LIBDIR_NATIVE}/kotlin/kotlin-native-${KOTLIN_VERSION}"
 KOTLINC ?= "${KOTLIN_HOME_NATIVE}/bin/kotlinc"
@@ -20,7 +20,7 @@ KOTLIN_FLAGS ?= " \
 KOTLIN_STDLIB ?= "${KOTLIN_HOME_NATIVE}/lib/kotlin-stdlib.jar"
 
 PATH:prepend = "${KOTLIN_HOME_NATIVE}/bin:"
-
+DEPENDS:append = " kotlin-native"
 do_configure[noexec] = "1"
 
 python() {

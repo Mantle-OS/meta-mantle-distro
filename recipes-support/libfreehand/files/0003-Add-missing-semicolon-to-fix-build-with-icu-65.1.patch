@@ -8,7 +8,7 @@ Reviewed-on: https://gerrit.libreoffice.org/80224
 Reviewed-by: Miklos Vajna <vmiklos@collabora.com>
 Tested-by: Miklos Vajna <vmiklos@collabora.com>
 
-Upstream-Status: Applied
+Upstream-Status: Pending
 ---
  src/lib/libfreehand_utils.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

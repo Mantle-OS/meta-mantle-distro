@@ -9,8 +9,6 @@ inherit packagegroup
 
 ALLOW_EMPTY:${PN} = "1"
 
-## MISSING recipies
-#     git-lfs
 PACKAGES = " \
     ${PN} \
     ${PN}-toolchain \
@@ -78,8 +76,8 @@ RDEPENDS:${PN}-python3 = " \
     python3-kas \
 "
 
-SUMMARY:${PN}-compression = "FIXME"
-DESCRIPTION:${PN}-compression = "FIXME"
+SUMMARY:${PN}-compression = "Mantle self-hosted compression tools"
+DESCRIPTION:${PN}-compression = "Archive and compression utilities required by the Mantle OS build environment"
 RDEPENDS:${PN}-compression = " \
     cpio \
     tar \
@@ -92,8 +90,8 @@ RDEPENDS:${PN}-compression = " \
     zstd \
 "
 
-SUMMARY:${PN}-compression = "Mantle self-hosted compression tools"
-DESCRIPTION:${PN}-compression = "Archive and compression utilities"
+SUMMARY:${PN}-graphics = "Mantle self-hosted graphics tools"
+DESCRIPTION:${PN}-graphics = "Graphics, terminal, and display-related libraries and utilities"
 RDEPENDS:${PN}-graphics = " \
     mesa \
     ncurses \
@@ -109,6 +107,7 @@ RDEPENDS:${PN}-networking = " \
     curl \
     rsync \
     git \
+    git-lfs \
     mercurial \
     iproute2 \
     openssh-keygen openssh-scp openssh-ssh openssh-sftp \

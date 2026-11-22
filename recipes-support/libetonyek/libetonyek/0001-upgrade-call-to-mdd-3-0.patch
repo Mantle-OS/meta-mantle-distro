@@ -4,6 +4,7 @@ Date: Fri, 5 Sep 2025 09:14:52 +0000
 Subject: [PATCH] upgrade call to mdd 3.0
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+Upstream-Status: Pending
 ---
  configure.ac           | 25 +++----------------------
  src/lib/IWORKTable.cpp |  2 +-

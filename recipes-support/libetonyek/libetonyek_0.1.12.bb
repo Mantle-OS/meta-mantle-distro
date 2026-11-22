@@ -11,13 +11,13 @@ SRC_URI = " \
 SRCREV = "06467aeb7b4a7082d524d3433c166e12278a3104"
 inherit autotools pkgconfig
 
-PACKAGECONFIG ?= " docs langtag"
+PACKAGECONFIG ?= " langtag"
 PACKAGECONFIG[docs] = " , --without-docs, doxygen-native graphviz-native"
 PACKAGECONFIG[langtag] = " , --without-liblangtag, liblangtag"
 
-EXTRA_OECONF += " --with-mdds='3.0' "
+EXTRA_OECONF:append = " --with-mdds='3.0' "
 
-DEPENDS = " \
+DEPENDS:append = " \
     glm \
     icu \
     lcms \

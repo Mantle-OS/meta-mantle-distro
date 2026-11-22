@@ -1,0 +1,41 @@
+From 677107de1c92e86e71a12d4f07d123a1ba24f86f Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 14:13:30 -0600
+Subject: [PATCH] Add cross compile status on the tools for data gen
+
+Upstream-Status: Pending
+---
+ data/CMakeLists.txt | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 5807ac10..0d252285 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -4,8 +4,21 @@ endif()
+ 
+ find_package(Python3 REQUIRED COMPONENTS Interpreter)
+ 
+-set(OPENCC_DICT_BIN opencc_dict)
+-set(OPENCC_BIN opencc)
++if(CMAKE_CROSSCOMPILING)
++  if(NOT OPENCC_DICT_EXE)
++    message(FATAL_ERROR "Cross-compiling requires OPENCC_DICT_EXE to locate native tools.")
++  endif()
++  if(NOT OPENCC_EXE)
++    message(FATAL_ERROR "Cross-compiling requires OPENCC_EXE to locate native tools.")
++  endif()
++
++  set(OPENCC_DICT_BIN "${OPENCC_DICT_EXE}")
++  set(OPENCC_BIN "${OPENCC_EXE}")
++else()
++  set(OPENCC_DICT_BIN opencc_dict)
++  set(OPENCC_BIN opencc)
++endif()
++
+ set(DICT_REVERSE_BIN "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/reverse.py")
+ set(DICT_EXTRACT_TOFU_RISK_BIN "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/extract_tofu_risk.py")
+ set(DICT_GENERATE_ST_PHRASES_BIN "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_st_phrases_from_regional_phrases.py")
+-- 
+2.55.0
+

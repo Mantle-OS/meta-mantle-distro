@@ -1,0 +1,28 @@
+From 52b6c4657d0806ff1e1d1041091222c762dd4999 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 16:27:08 -0600
+Subject: [PATCH] Fcitx5ModuleTemplate.cmake.in update property for the
+ interface
+
+Upstream-Status: Pending
+---
+ src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in b/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
+index e51f044a..31c2d4b8 100644
+--- a/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
++++ b/src/lib/fcitx-utils/Fcitx5ModuleTemplate.cmake.in
+@@ -4,4 +4,8 @@ endif()
+ 
+ add_library(@FEM_TARGET@-interface INTERFACE)
+ add_library(Fcitx5::Module::@FEM_EXPORTNAME@ ALIAS @FEM_TARGET@-interface)
+-set_target_properties(@FEM_TARGET@-interface PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@_MODULE_HEADER_DIR@")
++
++# set_target_properties(@FEM_TARGET@-interface PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@_MODULE_HEADER_DIR@")
++@PACKAGE_INIT@
++set_target_properties(@FEM_TARGET@-interface PROPERTIES
++    INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/@_MODULE_HEADER_REL_DIR@")
+-- 
+2.55.0
+

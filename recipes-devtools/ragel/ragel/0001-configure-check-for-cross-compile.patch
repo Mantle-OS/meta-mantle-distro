@@ -4,6 +4,8 @@ Date: Sun, 7 Sep 2025 00:03:39 +0000
 Subject: [PATCH] configure check for cross compile
 
 Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Inappropriate [oe specific]
 ---
  Makefile.am     |  3 ++-
  configure.ac    | 56 +++++++++++++++++--------------------------------

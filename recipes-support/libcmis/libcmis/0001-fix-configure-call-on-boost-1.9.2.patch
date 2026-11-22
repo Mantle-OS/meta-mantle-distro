@@ -1,0 +1,55 @@
+From d3c14339c35e9e97ae941d4c58d518519eea2fc7 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 18:12:01 -0600
+Subject: [PATCH] fix configure call on boost 1.9.2
+
+Upstream-Status: Pending
+---
+ m4/boost.m4 | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/m4/boost.m4 b/m4/boost.m4
+index 36c240d..ab07b64 100644
+--- a/m4/boost.m4
++++ b/m4/boost.m4
+@@ -154,8 +154,7 @@ m4_pattern_allow([^BOOST_VERSION$])dnl
+ ]])])
+     # If the user provided a value to --with-boost, use it and only it.
+     case $with_boost in #(
+-      ''|yes) set x '' /opt/local/include /usr/local/include /opt/include \
+-                 /usr/include C:/Boost/include;; #(
++      ''|yes) set x '' ;;
+       *)      set x "$with_boost/include" "$with_boost";;
+     esac
+     shift
+@@ -170,9 +169,14 @@ m4_pattern_allow([^BOOST_VERSION$])dnl
+     # searching $boost_dir" itself.  Entries are whitespace separated.
+     #
+     # I didn't indent this loop on purpose (to avoid over-indented code)
+-    boost_layout_system_search_list=`cd "$boost_dir" 2>/dev/null \
+-        && ls -1 | "${GREP}" '^boost-' | sort -rn -t- -k2 \
+-        && echo .`
++    if test -z "$boost_dir"; then
++        boost_layout_system_search_list=.
++    else
++        boost_layout_system_search_list=`cd "$boost_dir" 2>/dev/null \
++            && ls -1 | "${GREP}" '^boost-' | sort -rn -t- -k2 \
++            && echo .`
++    fi
++
+     for boost_inc in $boost_layout_system_search_list
+     do
+       if test x"$boost_inc" != x.; then
+@@ -467,8 +471,7 @@ for boost_rtopt_ in $boost_rtopt '' -d; do
+     boost_tmp_lib=$with_boost
+     test x"$with_boost" = x && boost_tmp_lib=${boost_cv_inc_path%/include}
+     for boost_ldpath in "$boost_tmp_lib/lib" '' \
+-             /opt/local/lib* /usr/local/lib* /opt/lib* /usr/lib* \
+-             "$with_boost" C:/Boost/lib /lib*
++             "$with_boost"
+     do
+       # Don't waste time with directories that don't exist.
+       if test x"$boost_ldpath" != x && test ! -e "$boost_ldpath"; then
+-- 
+2.55.0
+

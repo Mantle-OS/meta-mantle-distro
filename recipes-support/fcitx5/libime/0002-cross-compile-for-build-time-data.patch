@@ -1,0 +1,94 @@
+From fc3e4bfc05c5144f6c4d8ee1efdd6fcd327dfe2b Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Thu, 5 Nov 2026 18:31:45 -0600
+Subject: [PATCH] cross compile for build time data
+
+Upstream-Status: Pending
+---
+ data/CMakeLists.txt | 43 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 10 deletions(-)
+
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 668ae44..b25276e 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -1,3 +1,26 @@
++
++if(CMAKE_CROSSCOMPILING AND LIBIME_NATIVE_BINDIR)
++  set(LIBIME_SLM_BUILD_BINARY "${LIBIME_NATIVE_BINDIR}/libime_slm_build_binary")
++  set(LIBIME_PREDICTION "${LIBIME_NATIVE_BINDIR}/libime_prediction")
++  set(LIBIME_PINYINDICT "${LIBIME_NATIVE_BINDIR}/libime_pinyindict")
++  set(LIBIME_TABLEDICT "${LIBIME_NATIVE_BINDIR}/libime_tabledict")
++
++  set(LIBIME_SLM_BUILD_BINARY_DEPENDS "${LIBIME_SLM_BUILD_BINARY}")
++  set(LIBIME_PREDICTION_DEPENDS "${LIBIME_PREDICTION}")
++  set(LIBIME_PINYINDICT_DEPENDS "${LIBIME_PINYINDICT}")
++  set(LIBIME_TABLEDICT_DEPENDS "${LIBIME_TABLEDICT}")
++else()
++  set(LIBIME_SLM_BUILD_BINARY LibIME::slm_build_binary)
++  set(LIBIME_PREDICTION LibIME::prediction)
++  set(LIBIME_PINYINDICT LibIME::pinyindict)
++  set(LIBIME_TABLEDICT LibIME::tabledict)
++
++  set(LIBIME_SLM_BUILD_BINARY_DEPENDS LibIME::slm_build_binary)
++  set(LIBIME_PREDICTION_DEPENDS LibIME::prediction)
++  set(LIBIME_PINYINDICT_DEPENDS LibIME::pinyindict)
++  set(LIBIME_TABLEDICT_DEPENDS LibIME::tabledict)
++endif()
++
+ set(LM_TAR "lm_sc.arpa-20260629.tar.zst")
+ # Use our own file server for convenience.
+ set(LM_URL "https://download.fcitx-im.org/data/${LM_TAR}")
+@@ -12,14 +35,14 @@ set(LM_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sc.lm")
+ set(LM_PREDICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sc.lm.predict")
+ add_custom_command(
+   OUTPUT "${LM_OUTPUT}"
+-  DEPENDS "${LM_SRC}" LibIME::slm_build_binary
+-  COMMAND LibIME::slm_build_binary -s -a 22 -q 4 trie "${LM_SRC}" "${LM_OUTPUT}")
++  DEPENDS "${LM_SRC}" ${LIBIME_SLM_BUILD_BINARY_DEPENDS}
++  COMMAND "${LIBIME_SLM_BUILD_BINARY}" -s -a 22 -q 4 trie "${LM_SRC}" "${LM_OUTPUT}")
+ add_custom_target(lm ALL DEPENDS "${LM_OUTPUT}")
+ 
+ add_custom_command(
+   OUTPUT "${LM_PREDICT_OUTPUT}"
+-  DEPENDS "${LM_SRC}" lm LibIME::prediction
+-  COMMAND LibIME::prediction "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
++  DEPENDS "${LM_SRC}" lm ${LIBIME_PREDICTION_DEPENDS}
++  COMMAND "${LIBIME_PREDICTION}" "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
+ add_custom_target(lm-predict ALL DEPENDS "${LM_PREDICT_OUTPUT}")
+ 
+ install(FILES "${LM_OUTPUT}" RENAME zh_CN.lm DESTINATION "${LIBIME_INSTALL_LIBDATADIR}")
+@@ -37,15 +60,15 @@ set(DICT_SRC "${CMAKE_CURRENT_BINARY_DIR}/dict_sc.txt")
+ set(DICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sc.dict")
+ add_custom_command(
+   OUTPUT "${DICT_OUTPUT}"
+-  DEPENDS "${DICT_SRC}" LibIME::pinyindict
+-  COMMAND LibIME::pinyindict "${DICT_SRC}" "${DICT_OUTPUT}")
++  DEPENDS "${DICT_SRC}" ${LIBIME_PINYINDICT_DEPENDS}
++  COMMAND "${LIBIME_PINYINDICT}" "${DICT_SRC}" "${DICT_OUTPUT}")
+ 
+ set(DICT_EXTB_SRC "${CMAKE_CURRENT_BINARY_DIR}/dict_extb.txt")
+ set(DICT_EXTB_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/extb.dict")
+ add_custom_command(
+   OUTPUT "${DICT_EXTB_OUTPUT}"
+-  DEPENDS "${DICT_EXTB_SRC}" LibIME::pinyindict
+-  COMMAND LibIME::pinyindict "${DICT_EXTB_SRC}" "${DICT_EXTB_OUTPUT}")
++  DEPENDS "${DICT_EXTB_SRC}" ${LIBIME_PINYINDICT_DEPENDS}
++  COMMAND "${LIBIME_PINYINDICT}" "${DICT_EXTB_SRC}" "${DICT_EXTB_OUTPUT}")
+ add_custom_target(dict ALL DEPENDS "${DICT_OUTPUT}" "${DICT_EXTB_OUTPUT}")
+ install(FILES "${DICT_OUTPUT}" "${DICT_EXTB_OUTPUT}" DESTINATION "${LIBIME_INSTALL_PKGDATADIR}")
+ 
+@@ -62,8 +85,8 @@ set(TABLE_DICT_FILES)
+ foreach(TABLE_TXT_FILE ${TABLE_TXT_FILES})
+   string(REPLACE .txt .main.dict TABLE_DICT_FILE ${TABLE_TXT_FILE})
+   add_custom_command(OUTPUT ${TABLE_DICT_FILE}
+-                     DEPENDS ${TABLE_TXT_FILE} LibIME::tabledict
+-                     COMMAND LibIME::tabledict ${TABLE_TXT_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${TABLE_DICT_FILE})
++                     DEPENDS ${TABLE_TXT_FILE} ${LIBIME_TABLEDICT_DEPENDS}
++                     COMMAND "${LIBIME_TABLEDICT}" ${TABLE_TXT_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${TABLE_DICT_FILE})
+   list(APPEND TABLE_DICT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${TABLE_DICT_FILE})
+ endforeach()
+ 
+-- 
+2.55.0
+

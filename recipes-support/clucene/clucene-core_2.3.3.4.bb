@@ -15,17 +15,23 @@ SRC_URI = " \
     file://0004-fix-location-s-for-our-cmake-config.patch \
     file://0005-install-contribs-lib.patch \
     file://0006-Fix-build-with-glibc-2.36.patch \
+    file://0007-cmake-use-compiler-version-for-GCC-visibility-checks.patch \
 "
 SRC_URI[md5sum] = "48d647fbd8ef8889e5a7f422c1bfda94"
 SRC_URI[sha256sum] = "ddfdc433dd8ad31b5c5819cc4404a8d2127472a3b720d3e744e8c51d79732eab"
 
 inherit cmake
 
-DEPENDS = "boost zlib"
+DEPENDS:append = " \
+    boost \
+    zlib \
+"
 
 EXTRA_OECMAKE = " \
     -DLIB_SUFFIX=${@d.getVar('baselib').replace('lib', '')} \
     -DENABLE_COMPILE_TESTS=OFF \
-    -DBUILD_CONTRIBS_LIB=ON"
+    -DBUILD_CONTRIBS_LIB=ON \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+"
 
 BBCLASSEXTEND = "native"

@@ -19,37 +19,39 @@ do_install:append() {
     fi
 
     # Targets to scrub: CMake exports/configs, pkg-config .pc, and legacy *-config helpers.
-    default_preds="-name '*.cmake' -o -name '*Targets*.cmake' -o -name '*Config*.cmake' -o -name '*.pc'"
+    # default_preds="-name '*.cmake' -o -name '*Targets*.cmake' -o -name '*Config*.cmake' -o -name '*.pc'"
 
     # Rewrite absolute build/sysroot paths to relocatable forms and normalize _IMPORT_PREFIX.
-    find "${D}" -type f \( ${default_preds} \) -print0 2>/dev/null | \
-    while IFS= read -r -d '' f; do
+    find "${D}" -type f \( \
+        -name '*.cmake' -o \
+        -name '*Targets*.cmake' -o \
+        -name '*Config*.cmake' -o \
+        -name '*.pc' \
+    \) -print 2>/dev/null | \
+    while IFS= read -r f; do
         # Normalize the line CMake writes with an absolute path:
         #   set(_IMPORT_PREFIX "/abs/path/.../image/usr")
         # or:
         #   get_filename_component(_IMPORT_PREFIX "/abs/path/.../image/usr" PATH)
         sed -i \
-          -e 's#^set(_IMPORT_PREFIX ".*")#set(_IMPORT_PREFIX "")#' \
-          -e 's#^get_filename_component(_IMPORT_PREFIX ".*" PATH)#set(_IMPORT_PREFIX "")#' \
-          \
-          -e "s#${D}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
-          -e "s#${RECIPE_SYSROOT}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
-          -e "s#${RECIPE_SYSROOT_NATIVE}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
-          \
-          -e "s#${D}##g" \
-          -e "s#${TMPDIR}##g" \
-          -e "s#${RECIPE_SYSROOT_NATIVE}##g" \
-          -e "s#${RECIPE_SYSROOT}##g" \
-          -e "s#${B}##g" \
-          -e "s#${S}##g" \
-          -e "s#${WORKDIR}##g" \
-          "$f" || true
+            -e "s#${D}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
+            -e "s#${RECIPE_SYSROOT}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
+            -e "s#${RECIPE_SYSROOT_NATIVE}${prefix}#\${_IMPORT_PREFIX}${prefix}#g" \
+            \
+            -e "s#${D}##g" \
+            -e "s#${TMPDIR}##g" \
+            -e "s#${RECIPE_SYSROOT_NATIVE}##g" \
+            -e "s#${RECIPE_SYSROOT}##g" \
+            -e "s#${B}##g" \
+            -e "s#${S}##g" \
+            -e "s#${WORKDIR}##g" \
+            "$f" || true
     done
 
     # Legacy *-config helpers sometimes bake absolute paths; normalize them too.
     if [ -d "${D}${bindir}" ]; then
-        find "${D}${bindir}" -maxdepth 1 -type f -name '*-config' -print0 2>/dev/null | \
-        while IFS= read -r -d '' c; do
+            find "${D}${bindir}" -maxdepth 1 -type f -name '*-config' -print 2>/dev/null | \
+            while IFS= read -r c; do
             sed -i \
               -e "s#${D}##g" \
               -e "s#${TMPDIR}##g" \
@@ -66,15 +68,20 @@ do_install:append() {
         return 0
     fi
 
-    error=
-    find "${D}" -type f -name '*.cmake' -print0 2>/dev/null | \
-    while IFS= read -r -d '' k; do
-        if grep -qE "${TMPDIR}|${RECIPE_SYSROOT}|${RECIPE_SYSROOT_NATIVE}" "$k"; then
+        error=
+
+    while IFS= read -r k; do
+        if grep -qF -e "${TMPDIR}" \
+                    -e "${RECIPE_SYSROOT}" \
+                    -e "${RECIPE_SYSROOT_NATIVE}" "$k"; then
             bbwarn "$k contains build/sysroot paths"
             error=true
         fi
-    done
-    if [ "x$error" != "x" ]; then
+    done <<EOF
+$(find "${D}" -type f -name '*.cmake' -print 2>/dev/null)
+EOF
+
+    if [ -n "$error" ]; then
         bbfatal "One or more installed files still reference build/sysroot paths."
     fi
 }

@@ -11,10 +11,11 @@ SRC_URI = " \
     git://github.com/GNOME/gtkmathview.git;branch=master;protocol=https \
     file://use_hostcxx.patch \
     file://0001-include-cstdio-to-get-printf-definitions.patch \
-    file://0002-configure.ac-header-detection-of-hash_map-is-broken-.patch \
     file://0003-gcc-6.0-build-fixes.patch \
     file://0001-Fix-formatting-for-modern-c-11-compilers.patch \
+    file://0001-build-register-bundled-Autoconf-macros.patch \
 "
+# file://0002-configure.ac-header-detection-of-hash_map-is-broken-.patch
 SRCREV = "0bc2cfa0a47aed2c8a63abd989cb8da4dcceb2ec"
 
 inherit features_check autotools pkgconfig

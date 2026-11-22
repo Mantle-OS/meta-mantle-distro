@@ -1,0 +1,70 @@
+From 6fb7ab26eed4ad13d7dffd7f03ec000769e70db4 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Wed, 18 Nov 2026 17:35:26 -0600
+Subject: [PATCH] cmake: use compiler version for GCC visibility checks
+
+Upstream-Status: Pending
+---
+ .../cmake/MacroCheckGccVisibility.cmake       | 39 +++++++------------
+ 1 file changed, 15 insertions(+), 24 deletions(-)
+
+diff --git a/src/shared/cmake/MacroCheckGccVisibility.cmake b/src/shared/cmake/MacroCheckGccVisibility.cmake
+index 2022aa3..e512234 100644
+--- a/src/shared/cmake/MacroCheckGccVisibility.cmake
++++ b/src/shared/cmake/MacroCheckGccVisibility.cmake
+@@ -1,4 +1,4 @@
+-#
++
+ # Copyright (c) 2006, Alexander Neundorf <neundorf@kde.org>
+ # Copyright (c) 2006, Laurent Montel, <montel@kde.org>
+ #
+@@ -8,32 +8,23 @@
+ macro(MACRO_CHECK_GCC_VISIBILITY GccVisibility)
+   if (CMAKE_COMPILER_IS_GNUCXX)
+    include(CheckCXXCompilerFlag)
+-   include(MacroEnsureVersion)
++
+    # visibility support
+    check_cxx_compiler_flag(-fvisibility=hidden ${GccVisibility})
+ 
+-   # get the gcc version
+-   exec_program(${CMAKE_C_COMPILER} ARGS --version OUTPUT_VARIABLE _gcc_version_info)
+-
+-   string (REGEX MATCH "[345]\\.[0-9]\\.[0-9]" _gcc_version "${_gcc_version_info}")
+-   if (NOT _gcc_version)
+-   
+-      # clang reports: clang version 1.1 (trunk 95754)
+-      string (REGEX MATCH "clang version ([123]\\.[0-9])" _gcc_version "${_gcc_version_info}")
+-      if ( _gcc_version )
+-        string(REGEX REPLACE "clang version (.*)" "\\1.0" _gcc_version "${_gcc_version}" )
+-      endif ( _gcc_version )
+-   
+-      # gcc on mac just reports: "gcc (GCC) 3.3 20030304 ..." without the patch level, handle this here:
+-      if (NOT _gcc_version)
+-        string (REGEX REPLACE ".*\\(GCC\\).* ([34]\\.[0-9]) .*" "\\1.0" _gcc_version "${_gcc_version_info}")
+-      endif (NOT _gcc_version)
+-   endif (NOT _gcc_version)
+-   
+-   
+-
+-   macro_ensure_version("4.1.0" "${_gcc_version}" GCC_IS_NEWER_THAN_4_1)
+-   macro_ensure_version("4.2.0" "${_gcc_version}" GCC_IS_NEWER_THAN_4_2)
++   # Use the compiler version detected by CMake.
++   # The original GCC version parser only supported GCC 3, 4, and 5.
++   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.1.0")
++      set(GCC_IS_NEWER_THAN_4_1 TRUE)
++   else()
++      set(GCC_IS_NEWER_THAN_4_1 FALSE)
++   endif()
++
++   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "4.2.0")
++      set(GCC_IS_NEWER_THAN_4_2 TRUE)
++   else()
++      set(GCC_IS_NEWER_THAN_4_2 FALSE)
++   endif()
+ 
+    set(_GCC_COMPILED_WITH_BAD_ALLOCATOR FALSE)
+    if (GCC_IS_NEWER_THAN_4_1)
+-- 
+2.55.0
+

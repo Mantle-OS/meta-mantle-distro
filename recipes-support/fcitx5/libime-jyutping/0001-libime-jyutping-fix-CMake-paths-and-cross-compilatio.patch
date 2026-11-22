@@ -1,0 +1,109 @@
+From 97665acfa63c94ac8cc0f3aaadaab6687c51cc46 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Fri, 6 Nov 2026 10:46:52 -0600
+Subject: [PATCH] libime-jyutping: fix CMake paths and cross-compilation of
+ data generators
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt      | 10 +++++++---
+ data/CMakeLists.txt | 46 +++++++++++++++++++++++++++++++++++++++------
+ 2 files changed, 47 insertions(+), 9 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 02053fd..4eed01f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,11 +32,15 @@ find_package(PkgConfig REQUIRED)
+ pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET "libzstd")
+ find_package(Fcitx5Utils  ${REQUIRED_FCITX_VERSION} REQUIRED)
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
+ 
+ find_package(Boost 1.61 REQUIRED COMPONENTS iostreams)
+-set(LIBIME_JYUTPING_INSTALL_PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/libime")
+-set(LIBIME_JYUTPING_INSTALL_LIBDATADIR "${CMAKE_INSTALL_FULL_LIBDIR}/libime")
++
++set(LIBIME_JYUTPING_INSTALL_PKGDATADIR "${CMAKE_INSTALL_DATADIR}/libime")
++set(LIBIME_JYUTPING_INSTALL_LIBDATADIR "${CMAKE_INSTALL_LIBDIR}/libime")
++
++#set(LIBIME_JYUTPING_INSTALL_PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/libime")
++#set(LIBIME_JYUTPING_INSTALL_LIBDATADIR "${CMAKE_INSTALL_FULL_LIBDIR}/libime")
+ 
+ find_package(LibIMECore 1.0.16 REQUIRED)
+ 
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index f016e93..9b8a79e 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -1,3 +1,36 @@
++if(CMAKE_CROSSCOMPILING)
++  if(NOT LIBIME_NATIVE_BINDIR)
++    message(FATAL_ERROR
++      "Cross-compiling requires LIBIME_NATIVE_BINDIR to locate native LibIME tools.")
++  endif()
++
++  set(LIBIME_SLM_BUILD_BINARY "${LIBIME_NATIVE_BINDIR}/libime_slm_build_binary")
++  set(LIBIME_PREDICTION "${LIBIME_NATIVE_BINDIR}/libime_prediction")
++  set(LIBIME_JYUTPINGDICT "${LIBIME_NATIVE_BINDIR}/libime_jyutpingdict")
++
++  foreach(tool
++      LIBIME_SLM_BUILD_BINARY
++      LIBIME_PREDICTION
++      LIBIME_JYUTPINGDICT)
++    if(NOT EXISTS "${${tool}}")
++      message(FATAL_ERROR
++        "Required native LibIME tool not found: ${${tool}}")
++    endif()
++  endforeach()
++
++  set(LIBIME_SLM_BUILD_BINARY_DEPENDS "${LIBIME_SLM_BUILD_BINARY}")
++  set(LIBIME_PREDICTION_DEPENDS "${LIBIME_PREDICTION}")
++  set(LIBIME_JYUTPINGDICT_DEPENDS "${LIBIME_JYUTPINGDICT}")
++else()
++  set(LIBIME_SLM_BUILD_BINARY LibIME::slm_build_binary)
++  set(LIBIME_PREDICTION LibIME::prediction)
++  set(LIBIME_JYUTPINGDICT LibIME::jyutpingdict)
++
++  set(LIBIME_SLM_BUILD_BINARY_DEPENDS LibIME::slm_build_binary)
++  set(LIBIME_PREDICTION_DEPENDS LibIME::prediction)
++  set(LIBIME_JYUTPINGDICT_DEPENDS LibIME::jyutpingdict)
++endif()
++
+ set(DICT_TAR "jyutping-dict-20180104.tar.xz")
+ set(DICT_URL "https://download.fcitx-im.org/data/${DICT_TAR}")
+ 
+@@ -20,22 +53,23 @@ set(LM_PREDICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/zh_HK.lm.predict")
+ 
+ add_custom_command(
+   OUTPUT "${LM_OUTPUT}"
+-  DEPENDS "${LM_SRC}" LibIME::slm_build_binary
+-  COMMAND LibIME::slm_build_binary -s -a 22 -q 8 trie "${LM_SRC}" "${LM_OUTPUT}")
++  DEPENDS "${LM_SRC}" ${LIBIME_SLM_BUILD_BINARY_DEPENDS}
++  COMMAND "${LIBIME_SLM_BUILD_BINARY}" -s -a 22 -q 8 trie "${LM_SRC}" "${LM_OUTPUT}")
+ add_custom_target(model ALL DEPENDS "${LM_OUTPUT}")
+ 
+ add_custom_command(
+   OUTPUT "${LM_PREDICT_OUTPUT}"
+-  DEPENDS "${LM_SRC}" model LibIME::prediction
+-  COMMAND LibIME::prediction "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
++  DEPENDS "${LM_SRC}" model ${LIBIME_PREDICTION_DEPENDS}
++  COMMAND "${LIBIME_PREDICTION}" "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
+ add_custom_target(predict ALL DEPENDS "${LM_PREDICT_OUTPUT}")
+ 
+ set(DICT_SRC "${CMAKE_CURRENT_BINARY_DIR}/words.txt")
+ set(DICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/jyutping.dict")
+ add_custom_command(
+   OUTPUT "${DICT_OUTPUT}"
+-  DEPENDS "${DICT_SRC}" LibIME::jyutpingdict
+-  COMMAND LibIME::jyutpingdict "${DICT_SRC}" "${DICT_OUTPUT}")
++  DEPENDS "${DICT_SRC}" ${LIBIME_JYUTPINGDICT_DEPENDS}
++  COMMAND "${LIBIME_JYUTPINGDICT}" "${DICT_SRC}" "${DICT_OUTPUT}")
+ add_custom_target(jyutping-dict ALL DEPENDS "${DICT_OUTPUT}")
++
+ install(FILES "${DICT_OUTPUT}" DESTINATION "${LIBIME_JYUTPING_INSTALL_PKGDATADIR}")
+ install(FILES "${LM_OUTPUT}" "${LM_PREDICT_OUTPUT}" DESTINATION "${LIBIME_JYUTPING_INSTALL_LIBDATADIR}")
+-- 
+2.55.0
+

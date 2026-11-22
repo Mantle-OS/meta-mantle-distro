@@ -1,0 +1,42 @@
+From ba52b591669f213359dbd36c879e802dc2df7bad Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 17 Nov 2026 18:44:23 -0600
+Subject: [PATCH] native update install path for cross compile
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3c97eb2..e5b503b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -51,7 +51,7 @@ include(CMakePackageConfigHelpers)
+ configure_package_config_file(
+     cmake/CorrosionConfig.cmake.in CorrosionConfig.cmake
+     INSTALL_DESTINATION
+-        "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/Corrosion"
++        "${CMAKE_INSTALL_LIBDIR}/cmake/Corrosion"
+ )
+ 
+ write_basic_package_version_file(
+@@ -67,7 +67,7 @@ install(
+         "${CMAKE_CURRENT_BINARY_DIR}/CorrosionConfig.cmake"
+         "${CMAKE_CURRENT_BINARY_DIR}/CorrosionConfigVersion.cmake"
+     DESTINATION
+-        "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/Corrosion"
++        "${CMAKE_INSTALL_LIBDIR}/cmake/Corrosion"
+ )
+ 
+ # These CMake scripts are needed both for the install and as a subdirectory
+@@ -77,5 +77,5 @@ install(
+         cmake/CorrosionGenerator.cmake
+         cmake/FindRust.cmake
+     DESTINATION
+-        "${CMAKE_INSTALL_FULL_DATADIR}/cmake"
++        "${CMAKE_INSTALL_DATADIR}/cmake"
+ )
+-- 
+2.55.0
+

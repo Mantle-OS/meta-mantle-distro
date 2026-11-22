@@ -1,4 +1,4 @@
-S ??= "${WORKDIR}/${BPN}-${PV}"
+S ??= "${UNPACKDIR}/${BPN}-${PV}"
 
 #inherit java-licenses
 
@@ -23,11 +23,11 @@ export JAVAC = "${STAGING_BINDIR_NATIVE}/javac"
 export JAR   = "${STAGING_BINDIR_NATIVE}/jar"
 export JAVA  = "${STAGING_BINDIR_NATIVE}/java"
 
-DEPENDS += " \
-    ${JAVA_BUILD_JDK}-native \
+DEPENDS:append = " ${JAVA_BUILD_JDK}-native"
+JAVA_SOURCE_FLAGS:append = " \
+    --release ${JAVA_TARGET_VERSION} \
+    -encoding UTF-8 \
 "
-
-JAVA_SOURCE_FLAGS = "--release ${JAVA_TARGET_VERSION} -encoding UTF-8"
 
 do_configure[noexec] = "1"
 

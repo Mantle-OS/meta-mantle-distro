@@ -10,4 +10,7 @@ SRC_URI[sha256sum] = "e137b6b110120a52c98edd02ebdc4095ee08d0d5295a94316a98175009
 
 inherit autotools pkgconfig
 
-DEPENDS = "icu librevenge"
+DEPENDS:append = " \
+    icu \
+    librevenge \
+"

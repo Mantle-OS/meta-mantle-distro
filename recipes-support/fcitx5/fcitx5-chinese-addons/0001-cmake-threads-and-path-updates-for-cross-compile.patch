@@ -1,0 +1,88 @@
+From 1d28e05a8dbb0507c2015708ace324d2b87576b9 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 16:13:47 -0600
+Subject: [PATCH] cmake threads and path updates for cross compile
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt                      | 10 ++++++++--
+ im/pinyin/CMakeLists.txt            |  3 +--
+ modules/cloudpinyin/CMakeLists.txt  |  2 +-
+ modules/pinyinhelper/CMakeLists.txt |  3 ++-
+ 4 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f099cc3..570c60b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,11 +14,12 @@ include(ECMUninstallTarget)
+ find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
+ find_package(Fcitx5Module REQUIRED COMPONENTS Notifications QuickPhrase Spell Clipboard)
+ find_package(Fcitx5ModuleLuaAddonLoader)
+-find_package(Pthread REQUIRED)
++# find_package(Pthread REQUIRED)
++find_package(Threads REQUIRED)
+ find_package(PkgConfig REQUIRED)
+ find_package(Gettext REQUIRED)
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
+ 
+ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+@@ -55,6 +56,11 @@ find_package(Boost 1.61 OPTIONAL_COMPONENTS json)
+ find_package(LibIMEPinyin ${REQUIRED_LIBIME_VERSION} REQUIRED)
+ find_package(LibIMETable ${REQUIRED_LIBIME_VERSION} REQUIRED)
+ 
++if(CMAKE_CROSSCOMPILING)
++    set_target_properties(LibIME::pinyindict PROPERTIES
++        IMPORTED_LOCATION "${LIBIME_NATIVE_BINDIR}/libime_pinyindict")
++endif()
++
+ if (ENABLE_CLOUDPINYIN)
+     pkg_check_modules(Curl REQUIRED IMPORTED_TARGET "libcurl")
+ endif()
+diff --git a/im/pinyin/CMakeLists.txt b/im/pinyin/CMakeLists.txt
+index dc23706..fb692ed 100644
+--- a/im/pinyin/CMakeLists.txt
++++ b/im/pinyin/CMakeLists.txt
+@@ -8,8 +8,7 @@ set(PINYIN_SOURCES
+ )
+ 
+ add_fcitx5_addon(pinyin ${PINYIN_SOURCES})
+-target_link_libraries(pinyin Fcitx5::Core Fcitx5::Config LibIME::Pinyin Fcitx5::Module::Punctuation Fcitx5::Module::QuickPhrase Fcitx5::Module::Notifications Fcitx5::Module::Spell Fcitx5::Module::PinyinHelper Pthread::Pthread)
+-
++target_link_libraries(pinyin Fcitx5::Core Fcitx5::Config LibIME::Pinyin Fcitx5::Module::Punctuation Fcitx5::Module::QuickPhrase Fcitx5::Module::Notifications Fcitx5::Module::Spell Fcitx5::Module::PinyinHelper Threads::Threads)
+ if (TARGET Fcitx5::Module::LuaAddonLoader)
+     target_compile_definitions(pinyin PRIVATE -DFCITX_HAS_LUA)
+     target_link_libraries(pinyin Fcitx5::Module::LuaAddonLoader)
+diff --git a/modules/cloudpinyin/CMakeLists.txt b/modules/cloudpinyin/CMakeLists.txt
+index d457571..8a76b4b 100644
+--- a/modules/cloudpinyin/CMakeLists.txt
++++ b/modules/cloudpinyin/CMakeLists.txt
+@@ -5,7 +5,7 @@ set(CLOUDPINYIN_SOURCES
+ 
+ if (ENABLE_CLOUDPINYIN)
+ add_fcitx5_addon(cloudpinyin ${CLOUDPINYIN_SOURCES})
+-target_link_libraries(cloudpinyin Fcitx5::Core Fcitx5::Config PkgConfig::Curl Pthread::Pthread)
++target_link_libraries(cloudpinyin Fcitx5::Core Fcitx5::Config PkgConfig::Curl Threads::Threads)
+ install(TARGETS cloudpinyin DESTINATION "${CMAKE_INSTALL_LIBDIR}/fcitx5")
+ configure_file(cloudpinyin.conf.in.in cloudpinyin.conf.in)
+ fcitx5_translate_desktop_file("${CMAKE_CURRENT_BINARY_DIR}/cloudpinyin.conf.in" cloudpinyin.conf)
+diff --git a/modules/pinyinhelper/CMakeLists.txt b/modules/pinyinhelper/CMakeLists.txt
+index d60d42c..e57d492 100644
+--- a/modules/pinyinhelper/CMakeLists.txt
++++ b/modules/pinyinhelper/CMakeLists.txt
+@@ -10,7 +10,8 @@ Fcitx5::Config
+ LibIME::Core
+ Fcitx5::Module::QuickPhrase
+ Fcitx5::Module::Clipboard
+-Pthread::Pthread)
++Threads::Threads)
++
+ install(TARGETS pinyinhelper DESTINATION "${CMAKE_INSTALL_LIBDIR}/fcitx5")
+ configure_file(pinyinhelper.conf.in.in pinyinhelper.conf.in)
+ fcitx5_translate_desktop_file("${CMAKE_CURRENT_BINARY_DIR}/pinyinhelper.conf.in" pinyinhelper.conf)
+-- 
+2.55.0
+

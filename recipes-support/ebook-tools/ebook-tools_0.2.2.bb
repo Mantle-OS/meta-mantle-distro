@@ -14,6 +14,10 @@ DEPENDS += " \
     libzip \
 "
 
+EXTRA_OECMAKE:append = " \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+"
+
 PACKAGE_BEFORE_PN = "${PN}-utils"
 FILES:${PN}-utils = " \
     ${bindir} \

@@ -29,7 +29,7 @@ mkdir -p /var/run
 udevd --daemon
 udevadm trigger --action=add
 udevadm settle
-
+## JUST IN CASE we build these in but others may not i915 could go away
 modprobe isofs 2> /dev/null
 modprobe i915  2> /dev/null
 

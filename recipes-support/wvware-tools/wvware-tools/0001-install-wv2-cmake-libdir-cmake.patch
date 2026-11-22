@@ -1,3 +1,12 @@
+From: Joseph Mills <josephjamesmills@gmail.com>
+Subject: [PATCH] wvware: install CMake export in the standard libdir
+
+Use CMAKE_INSTALL_LIBDIR for the exported CMake targets instead of
+constructing the installation path from LIB_SUFFIX.
+
+Upstream-Status: Pending
+Signed-off-by: Joseph Mills <josephjamesmills@gmail.com>
+
 diff --git a/src/CMakeLists.txt_bak b/src/CMakeLists.txt
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt

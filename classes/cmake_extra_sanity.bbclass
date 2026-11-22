@@ -1,4 +1,3 @@
-inherit cmake
 
 # do_install:append:class-cross does not work so hack
 do_install:prepend:class-native() {

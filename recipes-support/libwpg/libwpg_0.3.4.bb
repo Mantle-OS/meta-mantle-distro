@@ -16,5 +16,6 @@ DEPENDS = " \
     librevenge \
     libwpd \
     zlib \
+    boost \
 "
 RDEPENDS:${PN} = "perl"

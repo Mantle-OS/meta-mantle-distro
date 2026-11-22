@@ -9,6 +9,7 @@ IMAGE_INSTALL:remove = " \
     ${MACHINE_EXTRA_RDEPENDS} \
     ${MACHINE_EXTRA_RRECOMMENDS} \
 "
+
 # IMAGE_CONTAINER_NO_DUMMY = "1"
 inherit image-container
 IMAGE_FSTYPES = "tar.bz2"
