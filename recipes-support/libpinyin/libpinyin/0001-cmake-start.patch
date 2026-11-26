@@ -1,0 +1,237 @@
+From 13b387f141dfaa77560267838fbf046ce62dd29f Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 24 Nov 2026 01:06:59 -0600
+Subject: [PATCH] fix cross compile and add more gaurds
+
+Upstream-Status: Inappropriate [oe specific]
+---
+ CMakeLists.txt                | 23 +++++++++--
+ data/CMakeLists.txt           | 72 ++++++++++++++++++++++-------------
+ src/storage/CMakeLists.txt    |  5 ++-
+ utils/storage/CMakeLists.txt  |  8 ++++
+ utils/training/CMakeLists.txt | 18 +++++++++
+ 5 files changed, 93 insertions(+), 33 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4f62a9f..bb41876 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,11 +15,19 @@
+ ## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ 
+ ######## Project settings
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 3.5)
+ set (PACKAGE_NAME libpinyin)
+ project (${PACKAGE_NAME} CXX C)
+ enable_testing()
+ 
++include(GNUInstallDirs)
++
++## In data we  disable this when cross compile.
++option(USE_WGET "Update the model data archive while building" ON)
++option(BUILD_TESTS "Builds the tests" ON)
++option(BUILD_UTILS "Builds the utils" ON)
++option(BUILD_DATA "Builds the dara " ON)
++
+ ######## Package information
+ set (PACKAGE_URL https://github.com/libpinyin/libpinyin)
+ set (PACKAGE_BUGREPORT https://github.com/libpinyin/libpinyin/issues)
+@@ -178,6 +186,13 @@ include_directories(
+ ######## Subdirectories
+ 
+ add_subdirectory(src)
+-add_subdirectory(tests)
+-add_subdirectory(utils)
+-add_subdirectory(data)
++
++if(BUILD_TESTS)
++    add_subdirectory(tests)
++endif()
++if(BUILD_UTILS)
++    add_subdirectory(utils)
++endif()
++if(BUILD_DATA)
++    add_subdirectory(data)
++endif()
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index dedf626..eeb62a8 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -18,20 +18,20 @@ set(
+     ${CMAKE_BINARY_DIR}/data/bigram.db
+ )
+ 
+-set(
+-    gen_binary_files_BIN
+-    ${CMAKE_BINARY_DIR}/utils/storage/gen_binary_files
+-)
+ 
+-set(
+-    import_interpolation_BIN
+-    ${CMAKE_BINARY_DIR}/utils/storage/import_interpolation
+-)
+ 
+-set(
+-    gen_unigram_BIN
+-    ${CMAKE_BINARY_DIR}/utils/training/gen_unigram
+-)
++if(CMAKE_CROSSCOMPILING)
++    find_program(gen_binary_files_BIN gen_binary_files
++        REQUIRED NO_CMAKE_FIND_ROOT_PATH)
++    find_program(import_interpolation_BIN import_interpolation
++        REQUIRED NO_CMAKE_FIND_ROOT_PATH)
++    find_program(gen_unigram_BIN gen_unigram
++        REQUIRED NO_CMAKE_FIND_ROOT_PATH)
++else()
++    set(gen_binary_files_BIN $<TARGET_FILE:gen_binary_files>)
++    set(import_interpolation_BIN $<TARGET_FILE:import_interpolation>)
++    set(gen_unigram_BIN $<TARGET_FILE:gen_unigram>)
++endif()
+ 
+ add_custom_target(
+     data
+@@ -40,19 +40,36 @@ add_custom_target(
+         ${BINARY_MODEL_DATA}
+ )
+ 
+-add_custom_command(
+-    OUTPUT
+-        ${CMAKE_SOURCE_DIR}/data/gb_char.table
+-        ${CMAKE_SOURCE_DIR}/data/gbk_char.table
+-        ${CMAKE_SOURCE_DIR}/data/interpolation2.text
+-        ${CMAKE_SOURCE_DIR}/data/table.conf
+-    COMMENT
+-        "Downloading textual model data..."
+-    COMMAND
+-       wget http://downloads.sourceforge.net/libpinyin/models/model20.text.tar.gz
+-    COMMAND
+-       tar xvf model20.text.tar.gz -C ${CMAKE_SOURCE_DIR}/data
+-)
++
++if(USE_WGET)
++    add_custom_command(
++        OUTPUT
++            ${CMAKE_SOURCE_DIR}/data/gb_char.table
++            ${CMAKE_SOURCE_DIR}/data/gbk_char.table
++            ${CMAKE_SOURCE_DIR}/data/interpolation2.text
++            ${CMAKE_SOURCE_DIR}/data/table.conf
++        COMMENT
++            "Downloading textual model data..."
++        COMMAND
++           wget http://downloads.sourceforge.net/libpinyin/models/model20.text.tar.gz
++        COMMAND
++           tar xvf model20.text.tar.gz -C ${CMAKE_SOURCE_DIR}/data
++    )
++else()
++    add_custom_command(
++        OUTPUT
++            ${CMAKE_SOURCE_DIR}/data/gb_char.table
++            ${CMAKE_SOURCE_DIR}/data/gbk_char.table
++            ${CMAKE_SOURCE_DIR}/data/interpolation2.text
++            ${CMAKE_SOURCE_DIR}/data/table.conf
++        COMMENT
++            "Checking if model data is provided in ${CMAKE_SOURCE_DIR}/model20.text.tar.gz"
++        COMMAND
++        test -f ${CMAKE_SOURCE_DIR}/model20.text.tar.gz
++        COMMAND
++        tar xvf ${CMAKE_SOURCE_DIR}/model20.text.tar.gz -C ${CMAKE_SOURCE_DIR}/data --no-same-owner
++    )
++endif()
+ 
+ add_custom_command(
+     OUTPUT
+@@ -67,7 +84,7 @@ add_custom_command(
+     COMMAND
+         ${gen_binary_files_BIN} --table-dir ${CMAKE_SOURCE_DIR}/data
+     DEPENDS
+-        gen_binary_files
++        ${gen_binary_files_BIN}
+         ${CMAKE_SOURCE_DIR}/data/gb_char.table
+         ${CMAKE_SOURCE_DIR}/data/gbk_char.table
+         ${CMAKE_SOURCE_DIR}/data/table.conf
+@@ -83,7 +100,8 @@ add_custom_command(
+     COMMAND
+         ${gen_unigram_BIN} --table-dir ${CMAKE_SOURCE_DIR}/data
+     DEPENDS
+-        import_interpolation
++        ${import_interpolation_BIN}
++        ${gen_unigram_BIN}
+         ${CMAKE_SOURCE_DIR}/data/interpolation2.text
+         ${CMAKE_BINARY_DIR}/data/gb_char.bin
+         ${CMAKE_BINARY_DIR}/data/gbk_char.bin
+diff --git a/src/storage/CMakeLists.txt b/src/storage/CMakeLists.txt
+index 26330e0..e4c9ee8 100644
+--- a/src/storage/CMakeLists.txt
++++ b/src/storage/CMakeLists.txt
+@@ -13,6 +13,7 @@ set(
+     phrase_large_table2.cpp
+     phrase_large_table3.cpp
+     ngram.cpp
++    punct_table.cpp
+     tag_utility.cpp
+     chewing_key.cpp
+     pinyin_parser2.cpp
+@@ -30,7 +31,7 @@ if (HAVE_BERKELEY_DB)
+     chewing_large_table2_bdb.cpp
+     ngram_bdb.cpp
+     phrase_large_table3_bdb.cpp
+-    )
++    punct_table_bdb.cpp)
+ endif (HAVE_BERKELEY_DB)
+ 
+ if (HAVE_KYOTO_CABINET)
+@@ -40,7 +41,7 @@ if (HAVE_KYOTO_CABINET)
+     chewing_large_table2_kyotodb.cpp
+     ngram_kyotodb.cpp
+     phrase_large_table3_kyotodb.cpp
+-    )
++    punct_table_kyotodb.cpp)
+ endif (HAVE_KYOTO_CABINET)
+ 
+ add_library(
+diff --git a/utils/storage/CMakeLists.txt b/utils/storage/CMakeLists.txt
+index 648f430..c57e931 100644
+--- a/utils/storage/CMakeLists.txt
++++ b/utils/storage/CMakeLists.txt
+@@ -27,3 +27,11 @@ target_link_libraries(
+     export_interpolation
+     pinyin
+ )
++
++install(
++    TARGETS
++        gen_binary_files
++        import_interpolation
++        export_interpolation
++    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++)
+diff --git a/utils/training/CMakeLists.txt b/utils/training/CMakeLists.txt
+index 27620fb..7fe324a 100644
+--- a/utils/training/CMakeLists.txt
++++ b/utils/training/CMakeLists.txt
+@@ -127,3 +127,21 @@ target_link_libraries(
+     eval_correction_rate
+     pinyin
+ )
++
++install(
++    TARGETS
++        gen_ngram
++        gen_deleted_ngram
++        gen_unigram
++        gen_k_mixture_model
++        estimate_interpolation
++        estimate_k_mixture_model
++        merge_k_mixture_model
++        prune_k_mixture_model
++        import_k_mixture_model
++        export_k_mixture_model
++        k_mixture_model_to_interpolation
++        validate_k_mixture_model
++        eval_correction_rate
++    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++)
+-- 
+2.55.0
+

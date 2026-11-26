@@ -1,19 +1,41 @@
 SUMMARY = "Extra Fcitx5 input method tables"
+DESCRIPTION = "Provides additional multilingual table-based input methods for Fcitx5, including extra dictionaries and input method configurations."
+SECTION = "inputmethods"
+HOMEPAGE = "https://github.com/fcitx/fcitx5-table-extra"
 
-# FIXME: Placeholder license only. Verify the project's actual SPDX license.
-# FIXME: Verify the license file path and md5; let BitBake report the correct
-# checksum when the upstream file differs. A matching md5 is not license proof.
-LICENSE = "LGPL-2.1-or-later"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
+LICENSE = "GPL-3.0-or-later"
+LIC_FILES_CHKSUM = "file://LICENSES/GPL-3.0-or-later.txt;md5=1c76c4cc354acaac30ed4d5eefea7245"
 
-# FIXME: Confirm this is the appropriate shared include for fcitx5-table-extra.
-# The include owns lower-level metadata; do not require fcitx5-git.inc again.
 require libime.inc
+inherit gtk-icon-cache
 
-SRC_URI = "${FCITX5_TABLE_EXTRA_SRC_URI}"
+SRC_URI = " \
+    ${FCITX5_TABLE_EXTRA_SRC_URI} \
+    file://0001-cmake-use-native-LibIME-tabledict-when-cross-compili.patch \
+"
+
 SRCREV = "${FCITX5_TABLE_EXTRA_SRCREV}"
 PV = "${FCITX5_TABLE_EXTRA_PV}"
 
-# TODO: Verify upstream build dependencies and CMake options.
-# TODO: Inspect actual do_install image and assign FILES/package splits.
-# TODO: Add source patches only when demonstrated necessary.
+PACKAGES =+ " \
+    ${PN}-icons \
+    ${PN}-tables \
+"
+
+FILES:${PN} += " \
+    ${datadir}/metainfo \
+"
+
+SUMMARY:${PN}-icons = "Fcitx5 extra input method icons"
+DESCRIPTION:${PN}-icons = "Icon resources for the extra Fcitx5 table-based input methods."
+FILES:${PN}-icons = " \
+    ${datadir}/icons/hicolor/ \
+"
+
+SUMMARY:${PN}-tables = "Fcitx5 extra input method tables"
+DESCRIPTION:${PN}-tables = "Compiled dictionaries and input method configurations for extra Fcitx5 table-based input methods."
+FILES:${PN}-tables = " \
+    ${datadir}/fcitx5/inputmethod/ \
+    ${datadir}/fcitx5/table/ \
+"
+

@@ -1,0 +1,93 @@
+From 784d6d1b3938edacb58edfa4786d74acc1e3a18f Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sun, 21 Sep 2025 22:01:00 +0000
+Subject: [PATCH] update install paths as needed for qt6
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 28 ++++------------------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 89a2601..7e58fbc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -23,11 +23,6 @@
+ cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+ project(qmlbox2d)
+ 
+-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+-set(QMLBOX2D_PLUGIN_BASE_DIR ${CMAKE_BINARY_DIR}/bin/plugins)
+-
+ set(CMAKE_AUTOMOC ON)
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+ 
+@@ -38,7 +33,7 @@ check_ipo_supported(RESULT ipoSupported)
+ 
+ option(USE_QT6 "Use Qt6 by default, else use Qt5" ON)
+ option(USE_SYSTEM_BOX2D "Use system box2d if compatible" OFF)
+-option(BUILD_EXAMPLES "Build the examples" ON)
++option(BUILD_EXAMPLES "Build the examples" OFF)
+ option(BUILD_SHARED_LIBS "Build qml-box2d as a shared lib" ON)
+ 
+ set(QT_MAJOR_VERSION Qt6)
+@@ -117,16 +112,12 @@ endif()
+ 
+ set_target_properties(${QML_BOX2D_LIBRARY_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+ 
+-set(PLUGIN_DEST_DIR "${QMLBOX2D_PLUGIN_BASE_DIR}/Box2D")
+ set_target_properties(
+ ${QML_BOX2D_LIBRARY_NAME}
+ PROPERTIES
+     CXX_STANDARD 11
+     CXX_STANDARD_REQUIRED ON
+     CXX_EXTENSIONS NO
+-    ARCHIVE_OUTPUT_DIRECTORY "${PLUGIN_DEST_DIR}"
+-    LIBRARY_OUTPUT_DIRECTORY "${PLUGIN_DEST_DIR}"
+-    RUNTIME_OUTPUT_DIRECTORY "${PLUGIN_DEST_DIR}"
+ )
+ 
+ target_include_directories(${QML_BOX2D_LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+@@ -167,22 +158,11 @@ if(Qt6_FOUND)
+       URI Box2D
+       VERSION 2.0
+       PLUGIN_TARGET ${QML_BOX2D_LIBRARY_NAME}
+-      OUTPUT_DIRECTORY "${PLUGIN_DEST_DIR}"
+       NO_GENERATE_PLUGIN_SOURCE
+     )
+ endif()
+ 
+-if(USE_SYSTEM_BOX2D)
+-  find_package(Box2D REQUIRED)
+-  if(NOT BOX2D_FOUND)
+-    message(ERROR "System box2d not found")
+-  endif()
+-  target_include_directories(${QML_BOX2D_LIBRARY_NAME} PUBLIC ${BOX2D_INCLUDE_DIR} ${BOX2D_INCLUDE_DIR}/Box2D)
+-endif()
+-
+-if(NOT USE_SYSTEM_BOX2D)
+-  add_subdirectory(Box2D)
+-endif()
++add_subdirectory(Box2D)
+ 
+ if(BUILD_EXAMPLES)
+     add_subdirectory(examples)
+@@ -192,9 +172,9 @@ include(GNUInstallDirs)
+ 
+ install(
+   TARGETS qmlbox2d
+-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/Box2D"
++  DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt6/qml/Box2D"
+ )
+ install(
+   FILES qmldir
+-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/Box2D"
++  DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt6/qml/Box2D"
+ )
+-- 
+2.51.0
+

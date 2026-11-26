@@ -1,0 +1,36 @@
+From ea996394d337b8eb877fbcf0beff4ef09e2d036c Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sat, 27 Sep 2025 21:16:17 +0000
+Subject: [PATCH] add way to use native gen tool
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Inappropriate [OE-specific]
+---
+ CMakeLists.txt | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/CMakeLists.txt b/cpp/CMakeLists.txt
+index 27e4680cc..6cb8abbcd 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -249,6 +249,16 @@ if (BUILD_GEOCODER)
+   set (GEOCODING_DATA_OUTPUT
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/phonenumbers/geocoding/geocoding_data.cc"
+   )
++  # Decide which executable to run
++  if (GENERATE_GEOCODING_DATA)
++    set(_GEOCODING_TOOL "${GENERATE_GEOCODING_DATA}")
++    set(_GEOCODING_TOOL_DEP "")  # external path; no target dep
++  else()
++    # just-built
++    set(_GEOCODING_TOOL $<TARGET_FILE:generate_geocoding_data>)
++    set(_GEOCODING_TOOL_DEP generate_geocoding_data)
++  endif()
++
+ 
+   add_custom_command (
+     COMMAND generate_geocoding_data "${GEOCODING_DIR}"
+-- 
+2.51.0
+

@@ -1,0 +1,160 @@
+From fb2231c3196b85bfc9b6364312392ba52fd503ad Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 24 Nov 2026 12:44:33 -0600
+Subject: [PATCH] autotools: Add cross-compilation support for model data
+ generation
+
+Add optional build controls for utilities, model data, documentation and tests. Allow model data generation during cross-compilation using previously installed build-machine utilities while preserving the existing native build behavior.
+
+Upstream-Status: Pending
+---
+ Makefile.am      | 18 +++++++++++++-
+ configure.ac     | 61 +++++++++++++++++++++++++++++++++++++++++++++++-
+ data/Makefile.am | 12 +++++++++-
+ 3 files changed, 88 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index fbaefed..c5fe19f 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -17,7 +17,23 @@
+ EXTRA_DIST		= COPYING
+ 
+ AUTOMAKE_OPTIONS 	= gnu
+-SUBDIRS 		= src tests utils data doc
++SUBDIRS = src
++
++if BUILD_TESTS
++SUBDIRS += tests
++endif
++
++if BUILD_UTILS
++SUBDIRS += utils
++endif
++
++if BUILD_DATA
++SUBDIRS += data
++endif
++
++if BUILD_DOCS
++SUBDIRS += doc
++endif
+ 
+ MAINTAINERCLEANFILES 	= Makefile.in 
+ 
+diff --git a/configure.ac b/configure.ac
+index b2d7c6e..23b9bea 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -123,7 +123,7 @@ AM_CONDITIONAL([KYOTOCABINET], [test x"$DBM" = x"KyotoCabinet"])
+ DATABASE_FORMAT="$DBM"
+ AC_SUBST(DATABASE_FORMAT)
+ 
+-# --enable-libzhuyin
++# Build libzhuyin
+ AC_ARG_ENABLE(libzhuyin,
+     AC_HELP_STRING([--enable-libzhuyin],
+         [Support libzhuyin library.]),
+@@ -132,6 +132,65 @@ AC_ARG_ENABLE(libzhuyin,
+ )
+ AM_CONDITIONAL(ENABLE_LIBZHUYIN, test x"$enable_libzhuyin" = x"yes")
+ 
++## Build utils
++AC_ARG_ENABLE([utils],
++    AS_HELP_STRING([--enable-utils], [Build utilities]),
++    [enable_utils=$enableval],
++    [enable_utils=yes]
++)
++AM_CONDITIONAL([BUILD_UTILS], [test "x$enable_utils" = "xyes"])
++
++# Build data
++AC_ARG_ENABLE([data],
++    AS_HELP_STRING([--enable-data], [Generate and install model data]),
++    [enable_data=$enableval],
++    [enable_data=yes]
++)
++AM_CONDITIONAL([BUILD_DATA], [test "x$enable_data" = "xyes"])
++
++# Build docs
++AC_ARG_ENABLE([docs],
++    AS_HELP_STRING([--enable-docs], [Generate and install documentation]),
++    [enable_docs=$enableval],
++    [enable_docs=yes]
++)
++AM_CONDITIONAL([BUILD_DOCS], [test "x$enable_docs" = "xyes"])
++
++# Build tests
++AC_ARG_ENABLE([tests],
++    AS_HELP_STRING([--enable-tests], [Build tests]),
++    [enable_tests=$enableval],
++    [enable_tests=yes]
++)
++AM_CONDITIONAL([BUILD_TESTS], [test "x$enable_tests" = "xyes"])
++
++# Use system tools for model data generation when cross-compiling. For example, when cross-compiling for AArch64 on an x86_64 machine,
++#        gen_binary_files, import_interpolation and gen_unigram
++# must be executable on the x86_64 build machine, while the libraries are compiled for AArch64.
++#
++# If the x86_64 tools were previously built and installed into
++# /tmp/usr/bin, configure with:
++#
++# --with-system-tools=/tmp/usr/bin
++AC_ARG_WITH([system-tools],
++    AS_HELP_STRING([--with-system-tools=DIR],
++        [Directory containing tools to cross compile the data module]),
++    [SYSTEM_TOOLS="$withval"],
++    [SYSTEM_TOOLS=""])
++
++AC_SUBST([SYSTEM_TOOLS])
++
++# Validate system tools when cross-compiling model data.
++AS_IF([test "x$cross_compiling" = "xyes"], [
++    AS_IF([test "x$enable_data" = "xyes"], [
++        AS_IF([test -z "$SYSTEM_TOOLS" || test ! -d "$SYSTEM_TOOLS"], [
++            AC_MSG_ERROR([Cross-compiling model data requires a valid --with-system-tools=DIR])
++        ])
++    ])
++])
++AM_CONDITIONAL([CROSS_COMPILE], [test "x$cross_compiling" = "xyes"])
++
++# Windows
+ AC_CANONICAL_HOST
+ build_windows=no
+ case "${host_os}" in
+diff --git a/data/Makefile.am b/data/Makefile.am
+index 02be877..beda471 100644
+--- a/data/Makefile.am
++++ b/data/Makefile.am
+@@ -48,18 +48,28 @@ libpinyin_dbdir		= $(libdir)/libpinyin/data
+ 
+ CLEANFILES		= $(binary_model_data)
+ 
++
+ interpolation2.text:
++if CROSS_COMPILE
++	tar xvf $(top_srcdir)/model20.text.tar.gz -C $(top_srcdir)/data
++else
+ 	wget http://downloads.sourceforge.net/libpinyin/models/model20.text.tar.gz
+ 	tar xvf model20.text.tar.gz -C $(top_srcdir)/data
+-
++endif
+ 
+ $(tablefiles) table.conf: interpolation2.text
+ 
+ bigram.db: $(textual_model_data)
+ 	$(RM) $(binary_model_data)
++if CROSS_COMPILE
++	$(SYSTEM_TOOLS)/gen_binary_files --gen-punct-table --table-dir $(top_srcdir)/data
++	$(SYSTEM_TOOLS)/import_interpolation --table-dir $(top_srcdir)/data < $(top_srcdir)/data/interpolation2.text
++	$(SYSTEM_TOOLS)/gen_unigram --table-dir $(top_srcdir)/data
++else
+ 	../utils/storage/gen_binary_files --gen-punct-table --table-dir $(top_srcdir)/data
+ 	../utils/storage/import_interpolation --table-dir $(top_srcdir)/data < $(top_srcdir)/data/interpolation2.text
+ 	../utils/training/gen_unigram --table-dir $(top_srcdir)/data
++endif
+ 
+ addon_phrase_index.bin phrase_index.bin addon_pinyin_index.bin pinyin_index.bin $(binfiles): bigram.db
+ 
+-- 
+2.55.0
+

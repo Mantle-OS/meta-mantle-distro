@@ -1,0 +1,123 @@
+From 604257b8a8de27cbbeb2cac40643a71d3fbf602f Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 24 Nov 2026 17:30:09 -0600
+Subject: [PATCH] Add support for the cross compile of the protoc
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt     | 33 ++++++++++++++++++++++++++++++---
+ cmake/Macros.cmake | 32 ++++++++++++++++++++++++++++----
+ 2 files changed, 58 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d1f4ad3..37cc6bf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,6 +9,9 @@ find_package(Protobuf REQUIRED CONFIG)
+ find_package(Python3 REQUIRED COMPONENTS Interpreter)
+ find_package(Qt6 REQUIRED COMPONENTS Gui Widgets)
+ 
++set(NATIVE_MOZC_TOOLS "" CACHE PATH "Directory containing native Mozc data generation tools")
++option(BUILD_NATIVE_TOOLS "Build and install Mozc data generation tools" OFF)
++
+ include(cmake/Macros.cmake)
+ 
+ include(GNUInstallDirs)
+@@ -49,13 +52,37 @@ add_subdirectory(prediction)
+ add_subdirectory(engine)
+ 
+ if (BUILD_TOOL)
+-add_subdirectory(gui)
++    add_subdirectory(gui)
+ endif()
+ 
+ if (BUILD_SERVER AND ENABLE_SERVER)
+-add_subdirectory(server)
++    add_subdirectory(server)
+ endif()
+ 
+ if (BUILD_FCITX)
+-add_subdirectory(fcitx)
++    add_subdirectory(fcitx)
++endif()
++
++
++if(BUILD_NATIVE_TOOLS)
++    set(MOZC_NATIVE_TOOLS
++        data_manager-dataset_writer_main
++        data_manager-oss-gen_oss_segmenter_bitarray_main
++        dictionary-gen_system_dictionary_data_main
++        prediction-gen_suggestion_filter_main
++        rewriter-gen_collocation_data_main
++        rewriter-gen_collocation_suppression_data_main
++        rewriter-gen_symbol_rewriter_dictionary_main
++        rewriter-gen_emoticon_rewriter_data
++        rewriter-gen_single_kanji_noun_prefix_data
++        rewriter-gen_usage_rewriter_dictionary_main
++    )
++
++    add_custom_target(mozc-native-tools ALL
++        DEPENDS ${MOZC_NATIVE_TOOLS}
++    )
++
++    install(TARGETS ${MOZC_NATIVE_TOOLS}
++        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++    )
+ endif()
+diff --git a/cmake/Macros.cmake b/cmake/Macros.cmake
+index 22040e0..0d21f9f 100644
+--- a/cmake/Macros.cmake
++++ b/cmake/Macros.cmake
+@@ -82,8 +82,15 @@ endif()
+ if (arg_PROTO)
+     target_include_directories(${TGT} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+     target_link_libraries(${TGT} PUBLIC protobuf::libprotobuf)
+-    protobuf_generate(TARGET ${TGT} LANGUAGE cpp
+-        IMPORT_DIRS ${MOZC_SOURCE_DIR})
++
++    if(CMAKE_CROSSCOMPILING)
++        protobuf_generate(TARGET ${TGT} LANGUAGE cpp
++            IMPORT_DIRS ${MOZC_SOURCE_DIR}
++            PROTOC_EXE ${Protobuf_PROTOC_EXECUTABLE})
++    else()
++        protobuf_generate(TARGET ${TGT} LANGUAGE cpp
++            IMPORT_DIRS ${MOZC_SOURCE_DIR})
++    endif()
+ endif()
+ 
+ endfunction()
+@@ -162,12 +169,29 @@ function(mozc_binary_gen_file BINARY)
+     endforeach()
+     list(REMOVE_DUPLICATES dirs)
+ 
++    if(CMAKE_CROSSCOMPILING)
++        string(REGEX REPLACE "^mozc::" "" TOOL_NAME "${BINARY}")
++        string(REPLACE "::" "-" TOOL_NAME "${TOOL_NAME}")
++        find_program(NATIVE_BINARY
++            NAMES "${TOOL_NAME}"
++            PATHS "${NATIVE_MOZC_TOOLS}"
++            NO_DEFAULT_PATH
++            NO_CMAKE_FIND_ROOT_PATH
++            NO_CACHE
++            REQUIRED
++        )
++        set(GENERATOR "${NATIVE_BINARY}")
++    else()
++        set(GENERATOR "$<TARGET_FILE:${BINARY}>")
++    endif()
++
+     add_custom_command(
+         OUTPUT ${outputs}
+-        DEPENDS ${BINARY} ${inputs}
++        DEPENDS ${GENERATOR} ${inputs}
+         WORKING_DIRECTORY ${MOZC_SOURCE_DIR}
+-        COMMAND $<TARGET_FILE:${BINARY}> ${arg_ARGS}
++        COMMAND ${GENERATOR} ${arg_ARGS}
+     )
++
+ endfunction()
+ 
+ function(mozc_qt_add_resources outfiles resource_name resource)
+-- 
+2.55.0
+

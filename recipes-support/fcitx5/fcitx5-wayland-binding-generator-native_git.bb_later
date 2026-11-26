@@ -1,0 +1,22 @@
+SUMMARY = "Fcitx5 Wayland C++ binding generator"
+DESCRIPTION = "Build-time utility for generating C++ client-side \
+Wayland protocol bindings from XML protocol definitions."
+HOMEPAGE = "https://github.com/fcitx/fcitx5-wayland-binding-generator"
+BUGTRACKER = "https://github.com/fcitx/fcitx5-wayland-binding-generator/issues"
+SECTION = "devel"
+
+LICENSE = "LGPL-2.1-or-later"
+LIC_FILES_CHKSUM = "file://LICENSES/LGPL-2.1-or-later.txt;md5=UNKNWON_ATM"
+
+inherit qt6-cmake native
+
+DEPENDS = " \
+    qtbase6-native \
+    ktexttemplate6-native \
+"
+
+do_install() {
+    install -d ${D}${bindir}
+    install -m 0755 ${B}/bin/fcitx5-wayland-binding-generator \
+        ${D}${bindir}/fcitx5-wayland-binding-generator
+}

@@ -8,7 +8,9 @@ do_install:prepend:class-nativesdk() {
     no_staging_check=true
 }
 
-do_install:append() {
+
+do_install[postfuncs] += "do_install_cmake_sanity"
+do_install_cmake_sanity() {
     # avoid strange prefixing seen often
     old_dir=`pwd`
     cd ${D}
@@ -45,9 +47,6 @@ do_install:append() {
 }
 
 do_populate_sysroot[postfuncs] += "do_sysroot_cmake_sanity "
-
-# check sysroot cmake files for links not relative and not to sysroots
-
 do_sysroot_cmake_sanity() {
     error=
     for f in `cat ${CMAKEINSTALLED}` ; do

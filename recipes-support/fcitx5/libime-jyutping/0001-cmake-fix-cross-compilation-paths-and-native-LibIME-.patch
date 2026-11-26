@@ -1,0 +1,92 @@
+From 9cef0ac8ac939f55151ef96f33a99ab2b93e4559 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 22 Nov 2026 18:59:17 -0600
+Subject: [PATCH] cmake: fix cross-compilation paths and native LibIME tools
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt      | 10 +++++++---
+ data/CMakeLists.txt | 27 +++++++++++++++++++++------
+ 2 files changed, 28 insertions(+), 9 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b297d48..c4941da 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,11 +32,15 @@ find_package(PkgConfig REQUIRED)
+ pkg_check_modules(ZSTD REQUIRED IMPORTED_TARGET "libzstd")
+ find_package(Fcitx5Utils  ${REQUIRED_FCITX_VERSION} REQUIRED)
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+ find_package(Boost 1.61 REQUIRED COMPONENTS iostreams)
+-set(LIBIME_JYUTPING_INSTALL_PKGDATADIR "${CMAKE_INSTALL_FULL_DATADIR}/libime")
+-set(LIBIME_JYUTPING_INSTALL_LIBDATADIR "${CMAKE_INSTALL_FULL_LIBDIR}/libime")
++set(LIBIME_JYUTPING_INSTALL_PKGDATADIR "${CMAKE_INSTALL_DATADIR}/libime")
++set(LIBIME_JYUTPING_INSTALL_LIBDATADIR "${CMAKE_INSTALL_LIBDIR}/libime")
+ 
+ find_package(LibIMECore 1.1.18 REQUIRED)
+ 
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index f016e93..6bd09d9 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -4,6 +4,21 @@ set(DICT_URL "https://download.fcitx-im.org/data/${DICT_TAR}")
+ set(MODEL_TAR "jyutping-model-20180103.tar.xz")
+ set(MODEL_URL "https://download.fcitx-im.org/data/${MODEL_TAR}")
+ 
++set(LIBIME_SLM_BUILD_BINARY_EXE LibIME::slm_build_binary)
++set(LIBIME_PREDICTION_EXE LibIME::prediction)
++set(LIBIME_JYUTPINGDICT_EXE LibIME::jyutpingdict)
++
++if(CMAKE_CROSSCOMPILING)
++    if(NOT LIBIME_NATIVE_BINDIR)
++        message(FATAL_ERROR "LIBIME_NATIVE_BINDIR must be set when cross-compiling")
++    endif()
++
++    set(LIBIME_SLM_BUILD_BINARY_EXE "${LIBIME_NATIVE_BINDIR}/libime_slm_build_binary")
++    set(LIBIME_PREDICTION_EXE "${LIBIME_NATIVE_BINDIR}/libime_prediction")
++    set(LIBIME_JYUTPINGDICT_EXE "${LIBIME_NATIVE_BINDIR}/libime_jyutpingdict")
++endif()
++
++
+ fcitx5_download(jyutping-dict-download ${DICT_URL} ${DICT_TAR}
+                 e3a5b13edb8efa2f764245a3232f99ba7e7670e22b8cbe666a4fffa84b35f35b)
+ fcitx5_extract(jyutping-dict-extract ${DICT_TAR} DEPENDS jyutping-dict-download
+@@ -20,22 +35,22 @@ set(LM_PREDICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/zh_HK.lm.predict")
+ 
+ add_custom_command(
+   OUTPUT "${LM_OUTPUT}"
+-  DEPENDS "${LM_SRC}" LibIME::slm_build_binary
+-  COMMAND LibIME::slm_build_binary -s -a 22 -q 8 trie "${LM_SRC}" "${LM_OUTPUT}")
++  DEPENDS "${LM_SRC}" ${LIBIME_SLM_BUILD_BINARY_EXE}
++  COMMAND ${LIBIME_SLM_BUILD_BINARY_EXE} -s -a 22 -q 8 trie "${LM_SRC}" "${LM_OUTPUT}")
+ add_custom_target(model ALL DEPENDS "${LM_OUTPUT}")
+ 
+ add_custom_command(
+   OUTPUT "${LM_PREDICT_OUTPUT}"
+-  DEPENDS "${LM_SRC}" model LibIME::prediction
+-  COMMAND LibIME::prediction "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
++  DEPENDS "${LM_SRC}" model ${LIBIME_PREDICTION_EXE}
++  COMMAND ${LIBIME_PREDICTION_EXE} "${LM_OUTPUT}" "${LM_SRC}" "${LM_PREDICT_OUTPUT}")
+ add_custom_target(predict ALL DEPENDS "${LM_PREDICT_OUTPUT}")
+ 
+ set(DICT_SRC "${CMAKE_CURRENT_BINARY_DIR}/words.txt")
+ set(DICT_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/jyutping.dict")
+ add_custom_command(
+   OUTPUT "${DICT_OUTPUT}"
+-  DEPENDS "${DICT_SRC}" LibIME::jyutpingdict
+-  COMMAND LibIME::jyutpingdict "${DICT_SRC}" "${DICT_OUTPUT}")
++  DEPENDS "${DICT_SRC}" ${LIBIME_JYUTPINGDICT_EXE}
++  COMMAND ${LIBIME_JYUTPINGDICT_EXE} "${DICT_SRC}" "${DICT_OUTPUT}")
+ add_custom_target(jyutping-dict ALL DEPENDS "${DICT_OUTPUT}")
+ install(FILES "${DICT_OUTPUT}" DESTINATION "${LIBIME_JYUTPING_INSTALL_PKGDATADIR}")
+ install(FILES "${LM_OUTPUT}" "${LM_PREDICT_OUTPUT}" DESTINATION "${LIBIME_JYUTPING_INSTALL_LIBDATADIR}")
+-- 
+2.55.0
+

@@ -1,8 +1,8 @@
 SUMMARY = "${DESCRIPTION}"
-DESCRIPTION = "EMAC Chromium Kiosk X11 Image"
+DESCRIPTION = "Chromium Kiosk X11 Image"
 LICENSE = "MIT"
 
-require recipes-core/images/emac-image-core.bb
+require recipes-core/images/mantle-image-core.bb
 
 inherit features_check
 

@@ -15,11 +15,7 @@ SRC_URI += " git://github.com/OpenMathLib/OpenBLAS.git;protocol=https;branch=dev
 SRCREV = "e0166008be8e466242aa76b2ff75ce3f0fbf574a"
 PV = "0.3.34"
 
-# S = "${WORKDIR}/git"
-
-DEPENDS += " \
-    openmp \
-"
+DEPENDS += " openmp"
 
 PACKAGECONFIG[shared] = " -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF, -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF,"
 PACKAGECONFIG[cblas] = " -DBUILD_WITHOUT_CBLAS=OFF, -DBUILD_WITHOUT_CBLAS=ON,"

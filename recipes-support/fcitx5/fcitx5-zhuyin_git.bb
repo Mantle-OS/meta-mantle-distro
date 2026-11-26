@@ -1,19 +1,74 @@
 SUMMARY = "Zhuyin input method engine for Fcitx5"
+DESCRIPTION = "Fcitx5 Zhuyin provides Traditional Chinese text input \
+using the Zhuyin (Bopomofo) phonetic system, integrating LibZhuyin \
+for phonetic conversion and candidate selection."
 
-# FIXME: Placeholder license only. Verify the project's actual SPDX license.
-# FIXME: Verify the license file path and md5; let BitBake report the correct
-# checksum when the upstream file differs. A matching md5 is not license proof.
-LICENSE = "LGPL-2.1-or-later"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
+HOMEPAGE = "https://github.com/fcitx/fcitx5-zhuyin"
+BUGTRACKER = "https://github.com/fcitx/fcitx5-zhuyin/issues"
+SECTION = "inputmethods"
 
-# FIXME: Confirm this is the appropriate shared include for fcitx5-zhuyin.
-# The include owns lower-level metadata; do not require fcitx5-git.inc again.
-require libime.inc
+LICENSE = "GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://LICENSES/GPL-2.0-or-later.txt;md5=fed54355545ffd980b814dab4a3b312c"
 
-SRC_URI = "${FCITX5_ZHUYIN_SRC_URI}"
+require fcitx5.inc
+inherit gtk-icon-cache
+
+SRC_URI = " \
+    ${FCITX5_ZHUYIN_SRC_URI} \
+    file://0001-cross-compile-support-Fcitx5Utils_DIR-and-NATIVE_PIN.patch \
+"
+
 SRCREV = "${FCITX5_ZHUYIN_SRCREV}"
 PV = "${FCITX5_ZHUYIN_PV}"
 
-# TODO: Verify upstream build dependencies and CMake options.
-# TODO: Inspect actual do_install image and assign FILES/package splits.
-# TODO: Add source patches only when demonstrated necessary.
+PACKAGECONFIG[berkeley-db] = "-DLIBZHUYIN_DATABASE_FORMAT=BerkeleyDB, , db"
+PACKAGECONFIG[kyotocabinet] = "-DLIBZHUYIN_DATABASE_FORMAT=KyotoCabinet, , kyotocabinet"
+PACKAGECONFIG[data] = "-DENABLE_DATA=ON, -DENABLE_DATA=OFF"
+
+PACKAGECONFIG ??= " \
+    berkeley-db \
+"
+
+PACKAGECONFIG:append:class-target = " data"
+
+DEPENDS:append = " \
+    fcitx5 \
+    libpinyin libpinyin-native \
+"
+
+EXTRA_OECMAKE:append:class-target = " \
+    -DNATIVE_PINYIN_TOOLS:PATH=${STAGING_BINDIR_NATIVE} \
+"
+
+PACKAGES =+ " \
+    ${PN}-data \
+    ${PN}-icons \
+"
+
+FILES:${PN} += " \
+    ${libdir}/fcitx5/zhuyin.so \
+    ${datadir}/fcitx5/addon/zhuyin.conf \
+    ${datadir}/fcitx5/inputmethod/zhuyin.conf \
+    ${datadir}/fcitx5/lua/imeapi/extensions/zhuyin.lua \
+    ${datadir}/metainfo/org.fcitx.Fcitx5.Addon.Zhuyin.metainfo.xml \
+"
+
+SUMMARY:${PN}-data = "Language model data for the Fcitx5 Zhuyin input method"
+DESCRIPTION:${PN}-data = "Binary language models, phrase indexes, \
+phonetic indexes, statistical dictionaries and symbol tables used \
+by the Fcitx5 Zhuyin input method engine."
+
+FILES:${PN}-data = " \
+    ${datadir}/fcitx5/zhuyin \
+"
+
+SUMMARY:${PN}-icons = "Icons for the Fcitx5 Zhuyin input method"
+DESCRIPTION:${PN}-icons = "Hicolor theme icons for the Fcitx5 Zhuyin \
+input method in multiple resolutions."
+
+FILES:${PN}-icons = " \
+    ${datadir}/icons/hicolor \
+"
+
+RDEPENDS:${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'data', '${PN}-data', '', d)}"
+RRECOMMENDS:${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'data', '${PN}-icons', '', d)}"

@@ -1,15 +1,17 @@
-SUMMARY = "Libime Jyutping"
-DESCRIPTION = "A library make use of libime to implement jyutping (粵拼) input method."
+SUMMARY = "LibIME Jyutping input method library"
+DESCRIPTION = "Provides Jyutping (粵拼) Cantonese romanization support for LibIME, including dictionaries, language models, and optional Fcitx5 integration."
+SECTION = "inputmethods"
 LICENSE = "LGPL-2.1-or-later"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
+LIC_FILES_CHKSUM = "file://LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
 
 require libime.inc
 
 SRCREV = "${LIBIME_JYUTPING_SRCREV}"
 SRC_URI = " \
     ${LIBIME_JYUTPING_SRC_URI} \
-    file://0001-libime-jyutping-fix-CMake-paths-and-cross-compilatio.patch \
+    file://0001-cmake-fix-cross-compilation-paths-and-native-LibIME-.patch \
 "
+
 PV = "${LIBIME_JYUTPING_PV}"
 
 DEPENDS:append:class-target = " ${PN}-native"

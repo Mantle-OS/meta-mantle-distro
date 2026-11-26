@@ -1,0 +1,35 @@
+From d641490d8ddd32abbfc97bd076e167ddf2cee4ee Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 19:38:44 -0600
+Subject: [PATCH] cmake: Fix Fcitx5Utils lookup when cross-compiling
+
+Use Fcitx5Utils_DIR to locate Fcitx5CompilerSettings.cmake
+when cross-compiling, while preserving the existing lookup
+for native builds.
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6a6f7a3..e88d9e4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,7 +12,12 @@ find_package(PkgConfig REQUIRED)
+ find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
+ find_package(Gettext REQUIRED)
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
++
+ add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-sayura\")
+ fcitx5_add_i18n_definition()
+ 
+-- 
+2.55.0
+

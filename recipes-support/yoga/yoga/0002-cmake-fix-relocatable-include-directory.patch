@@ -1,0 +1,25 @@
+From daf0ea1ca19fbdf05b00d0dc24c0caeebe05b573 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 22 Nov 2026 15:44:36 -0600
+Subject: [PATCH] cmake: fix relocatable include directory
+
+Use CMAKE_INSTALL_INCLUDEDIR for exported targets.
+
+Upstream-Status: Pending
+---
+ yoga/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/yoga/CMakeLists.txt b/yoga/CMakeLists.txt
+index b6eca1ac..57d8666b 100644
+--- a/yoga/CMakeLists.txt
++++ b/yoga/CMakeLists.txt
+@@ -38,4 +38,4 @@ endif()
+ target_include_directories(yogacore
+     PUBLIC
+     $<BUILD_INTERFACE:${YOGA_ROOT}>
+-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/yoga>)
++    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+-- 
+2.55.0
+

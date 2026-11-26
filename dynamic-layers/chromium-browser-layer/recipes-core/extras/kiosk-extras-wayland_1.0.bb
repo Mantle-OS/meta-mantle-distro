@@ -5,6 +5,7 @@ LIC_FILES_CHKSUM = " \
 "
 
 SRC_URI = " \
+    file://wait-for-any-online.service \
     file://weston.ini \
     file://Loading.jpg \
 "
@@ -19,6 +20,14 @@ do_install(){
     install -m 0644 ${WORKDIR}/weston.ini ${D}/home/kiosk/.config/
     install -m 0644 ${WORKDIR}/Loading.jpg ${D}/home/kiosk/
     chown -R kiosk:kiosk ${D}/home/kiosk
+
+    install -d "${D}${systemd_system_unitdir}/"
+
+    if [[ -f "${D}${systemd_system_unitdir}/systemd-networkd-wait-online.service" ]]; then
+        rm "${D}${systemd_system_unitdir}/systemd-networkd-wait-online.service"
+    fi
+
+    install -m 0644 "${UNPACKDIR}/wait-for-any-online.service" "${D}${systemd_system_unitdir}/systemd-networkd-wait-online.service"
 }
 
 FILES:${PN}:append = " \
@@ -27,7 +36,6 @@ FILES:${PN}:append = " \
 "
 
 inherit useradd
-
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "--system --create-home \
     --shell /bin/sh \

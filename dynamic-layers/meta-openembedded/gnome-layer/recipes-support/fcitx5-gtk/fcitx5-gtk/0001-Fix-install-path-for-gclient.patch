@@ -1,0 +1,34 @@
+From 9d5b02a6542eb30b6429734010a5327bddb1ccd5 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 8 Nov 2026 19:17:51 -0600
+Subject: [PATCH] Fix install path for gclient
+
+Upstream-Status: Pending
+---
+ fcitx-gclient/CMakeLists.txt | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/fcitx-gclient/CMakeLists.txt b/fcitx-gclient/CMakeLists.txt
+index 3f43625..20cc029 100644
+--- a/fcitx-gclient/CMakeLists.txt
++++ b/fcitx-gclient/CMakeLists.txt
+@@ -45,11 +45,12 @@ set_target_properties(Fcitx5GClient
+ target_include_directories(Fcitx5GClient
+     PUBLIC
+         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_BINARY_DIR}>"
+-        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_FULL_INCLUDEDIR}>/Fcitx5/GClient"
+-    INTERFACE
+-        "${Gio2_INCLUDE_DIRS}"
+-        "${GObject2_INCLUDE_DIRS}"
++        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Fcitx5/GClient>"
++    PRIVATE
++        ${Gio2_INCLUDE_DIRS}
++        ${GObject2_INCLUDE_DIRS}
+ )
++
+ target_link_libraries(Fcitx5GClient LINK_PRIVATE PkgConfig::Gio2 PkgConfig::GLib2 PkgConfig::GObject2)
+ 
+ add_library(Fcitx5::GClient ALIAS Fcitx5GClient)
+-- 
+2.55.0
+

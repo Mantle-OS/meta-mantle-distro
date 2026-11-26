@@ -1,0 +1,91 @@
+From d0d831150ac981862d48447925cbeab6e7f48c4b Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 24 Nov 2026 13:51:19 -0600
+Subject: [PATCH] cross compile support Fcitx5Utils_DIR and NATIVE_PINYIN_TOOLS
+ added
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt      | 13 ++++++++++++-
+ data/CMakeLists.txt | 33 ++++++++++++++++++++++++++++++---
+ 2 files changed, 42 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 80bf654..8daf29e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -33,7 +33,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+ option(ENABLE_TEST "Build Test" On)
+ option(ENABLE_DATA "Build data" On)
+@@ -42,6 +46,13 @@ add_subdirectory(po)
+ add_subdirectory(src)
+ 
+ if(ENABLE_DATA)
++    if(CMAKE_CROSSCOMPILING)
++        set(NATIVE_PINYIN_TOOLS "" CACHE PATH "Directory containing native Pinyin model generation utilities")
++        if(NOT IS_DIRECTORY "${NATIVE_PINYIN_TOOLS}")
++            message(FATAL_ERROR "Cross-compiling Zhuyin model data requires a valid NATIVE_PINYIN_TOOLS directory")
++        endif()
++    endif()
++
+     add_subdirectory(data)
+ endif()
+ 
+diff --git a/data/CMakeLists.txt b/data/CMakeLists.txt
+index 82cc446..39fe6be 100644
+--- a/data/CMakeLists.txt
++++ b/data/CMakeLists.txt
+@@ -2,10 +2,37 @@ install(DIRECTORY 16x16 22x22 24x24 48x48 DESTINATION "${CMAKE_INSTALL_DATADIR}/
+         PATTERN .* EXCLUDE
+         PATTERN *~ EXCLUDE)
+ 
++if(CMAKE_CROSSCOMPILING)
++    find_program(LIBPINYIN_GEN_BINARY_FILES gen_binary_files
++        PATHS "${NATIVE_PINYIN_TOOLS}"
++        NO_DEFAULT_PATH
++        NO_CMAKE_FIND_ROOT_PATH
++        REQUIRED)
+ 
+-find_program(LIBPINYIN_GEN_BINARY_FILES gen_binary_files HINTS "${LIBPINYIN_EXECPREFIX}/bin")
+-find_program(LIBPINYIN_GEN_UNIGRAM gen_unigram HINTS "${LIBPINYIN_EXECPREFIX}/bin")
+-find_program(LIBPINYIN_IMPORT_INTERPOLATION import_interpolation HINTS "${LIBPINYIN_EXECPREFIX}/bin")
++    find_program(LIBPINYIN_GEN_UNIGRAM gen_unigram
++        PATHS "${NATIVE_PINYIN_TOOLS}"
++        NO_DEFAULT_PATH
++        NO_CMAKE_FIND_ROOT_PATH
++        REQUIRED)
++
++    find_program(LIBPINYIN_IMPORT_INTERPOLATION import_interpolation
++        PATHS "${NATIVE_PINYIN_TOOLS}"
++        NO_DEFAULT_PATH
++        NO_CMAKE_FIND_ROOT_PATH
++        REQUIRED)
++else()
++    find_program(LIBPINYIN_GEN_BINARY_FILES gen_binary_files
++        HINTS "${LIBPINYIN_EXECPREFIX}/bin"
++        REQUIRED)
++
++    find_program(LIBPINYIN_GEN_UNIGRAM gen_unigram
++        HINTS "${LIBPINYIN_EXECPREFIX}/bin"
++        REQUIRED)
++
++    find_program(LIBPINYIN_IMPORT_INTERPOLATION import_interpolation
++        HINTS "${LIBPINYIN_EXECPREFIX}/bin"
++        REQUIRED)
++endif()
+ 
+ set(_LIBPINYIN_TABLE gb_char gbk_char merged)
+ 
+-- 
+2.55.0
+

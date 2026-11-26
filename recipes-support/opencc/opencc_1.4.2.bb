@@ -2,17 +2,15 @@ SUMMARY = "Open Chinese Convert"
 DESCRIPTION =  "Open Chinese Convert (OpenCC, 開放中文轉換) is an open source project for high-quality conversion between Traditional Chinese, Simplified Chinese, Japanese Shinjitai, and regional wording across Mainland China, Taiwan, and Hong Kong. It provides dictionaries, a reusable library, conversion tools, and dictionary generation tools."
 HOMEPAGE = "https://opencc.js.org"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE;md5=a53192195ed45e801ce0642da66d65a7"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=a53192195ed45e801ce0642da66d65a7"
 SRC_URI = " \
     git://github.com/BYVoid/OpenCC.git;branch=master;protocol=https; \
-    file://0002-Import-and-cross-compile-support-for-data-tools.patch \
+    file://0001-cmake-fix-native-tools-and-prevent-stripping-Python-.patch \
 "
 SRCREV = "025f371dc76b598d77384fbdab90c937471844d8"
-S = "${WORKDIR}/git"
+
 
 inherit cmake cmake_extra_sanity python3targetconfig
-
-PV = "1.4.2"
 
 PACKAGECONFIG[docs] = " -DBUILD_DOCUMENTATION=ON, -DBUILD_DOCUMENTATION=OFF, doxygen-native"
 PACKAGECONFIG[shared] = " -DBUILD_SHARED_LIBS=ON, -DBUILD_SHARED_LIBS=OFF, "
@@ -75,12 +73,13 @@ do_install:append() {
         install -m 0755 ${B}/opencc_clib*.so ${D}${PYTHON_SITEPACKAGES_DIR}/opencc/clib/
     fi
 }
+
 PACKAGES =+ " \
     ${PN}-tools \
     ${PN}-jieba-data \
     ${PN}-data \
     ${PN}-jieba \
-    python3-${PN} \
+    ${PN}-python3 \
 "
 
 
@@ -90,6 +89,7 @@ FILES:${PN}-tools = " \
     ${bindir}/opencc_dict \
     ${bindir}/opencc_phrase_extract \
 "
+RDEPENDS:${PN}-tools += "${PN} ${PN}-data"
 
 SUMMARY:${PN}-data = "OpenCC conversion dictionaries and configuration data"
 FILES:${PN}-data = " \
@@ -101,21 +101,20 @@ SUMMARY:${PN}-jieba = "OpenCC Jieba word segmentation plugin"
 FILES:${PN}-jieba = " \
     ${libdir}/opencc/plugins/libopencc-jieba.so \
 "
+RDEPENDS:${PN}-jieba += "${PN} ${PN}-jieba-data"
 
 SUMMARY:${PN}-jieba-data = "OpenCC Jieba dictionaries and configuration data"
 FILES:${PN}-jieba-data = " \
     ${datadir}/opencc/jieba_dict/ \
     ${datadir}/opencc/*_jieba.json \
 "
+RDEPENDS:${PN}-jieba-data += "${PN}-data"
 
-SUMMARY:python3-${PN} = "Python 3 bindings for Open Chinese Convert"
-FILES:python3-${PN} = " \
+SUMMARY:${PN}-python3 = "Python 3 bindings for Open Chinese Convert"
+FILES:${PN}-python3 = " \
     ${PYTHON_SITEPACKAGES_DIR}/opencc/ \
 "
+RDEPENDS:${PN}-python3 += "${PN} ${PN}-data"
 
-RDEPENDS:${PN}-tools += "${PN} ${PN}-data"
-RDEPENDS:${PN}-jieba-data += "${PN}-data"
-RDEPENDS:${PN}-jieba += "${PN} ${PN}-jieba-data"
-RDEPENDS:${PN}-pylib += "${PN} ${PN}-data"
 
 BBCLASSEXTEND = "native nativesdk"

@@ -5,7 +5,7 @@ DESCRIPTION = "WebM is an open, royalty-free, media file format designed for the
 HOMEPAGE = "https://www.webmproject.org/code"
 SECTION = "lib"
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSE.TXT;md5=6e8dee932c26f2dab503abf70c96d8bb"
+LIC_FILES_CHKSUM = "file://LICENSE.TXT;md5=6e8dee932c26f2dab503abf70c96d8bb"
 
 SRC_URI += " \
     git://github.com/webmproject/libwebm.git;branch=main;protocol=https; \
@@ -13,7 +13,6 @@ SRC_URI += " \
 SRCREV = "f2a982d748b80586ae53b89a2e6ebbc305848b8c"
 
 PV = "0.3.4"
-S = "${WORKDIR}/git"
 
 inherit cmake cmake_extra_sanity
 

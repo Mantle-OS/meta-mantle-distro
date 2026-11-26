@@ -9,6 +9,7 @@ SRC_URI = " \
     file://0001-bring-in-debian-patches.patch \
     file://0002-update-perl-path.patch \
     file://0003-remove-strip-and-lets-oe-do-that.patch \
+    file://0004-hspell-build-dictionary-generators-with-native-compi.patch \
 "
 SRC_URI[sha256sum] = "7310f5d58740d21d6d215c1179658602ef7da97a816bc1497c8764be97aabea3"
 

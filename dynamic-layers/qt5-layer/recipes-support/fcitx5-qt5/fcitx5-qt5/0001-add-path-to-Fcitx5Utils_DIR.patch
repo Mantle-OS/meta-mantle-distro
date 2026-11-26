@@ -1,0 +1,26 @@
+From ab6d0260047b24f58a7345fb1c9f79d182199f2e Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Fri, 6 Nov 2026 12:49:17 -0600
+Subject: [PATCH] add path to Fcitx5Utils_DIR
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7924a5d..554d4bc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -65,7 +65,7 @@ if (BUILD_ONLY_PLUGIN)
+ # Dup a little bit option here.
+ include(CompilerSettings)
+ else()
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
+ find_package(Gettext REQUIRED)
+ endif()
+ 
+-- 
+2.55.0
+

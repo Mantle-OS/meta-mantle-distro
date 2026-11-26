@@ -1,0 +1,182 @@
+From e55453869c2b766d14697c7cb37125ef5918d032 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 9 Nov 2026 23:19:16 -0600
+Subject: [PATCH] hspell: build dictionary generators with native compiler
+
+Upstream-Status: Pending
+---
+ Makefile.in | 101 +++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 65 insertions(+), 36 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 2962102..a3c9334 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -7,12 +7,12 @@
+ # more than one of them appear as dependencies in other rules, parallel make
+ # may run the rule more than once concurrently! To work around this problem,
+ # we need to change every rule of the form:
+-#	a b c:
+-#		... create a b and c
++#       a b c:
++#               ... create a b and c
+ # to the form:
+-#	a:
+-#		... create a b and c
+-#	b c: a
++#       a:
++#               ... create a b and c
++#       b c: a
+ # Now, the real rule will be run just once, because "a" will be created just
+ # once. This workaround is used several times in the Makefile below.
+ 
+@@ -60,6 +60,12 @@ DICTBASE = @DICTBASE@
+ 
+ PERL=@PERL@
+ CC=@CC@
++# Native tools run on the build machine; CC is for target binaries.
++# Yocto exports BUILD_CC and BUILD_*FLAGS to the task environment.
++BUILD_CC ?= cc
++BUILD_CFLAGS ?= -O2
++BUILD_CPPFLAGS ?=
++BUILD_LDFLAGS ?=
+ 
+ DEFS=@DEFS@ -DDICTIONARY_BASE=\"$(DICTBASE)\"
+ CFLAGS=@CFLAGS@
+@@ -70,6 +76,10 @@ LDFLAGS=@LDFLAGS@
+ .c.o:
+ 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEFS) $<
+ 
++# Keep build-machine object files separate from cross-compiled objects.
++%.build.o: %.c
++	$(BUILD_CC) $(BUILD_CFLAGS) $(BUILD_CPPFLAGS) $(DEFS) -c -o $@ $<
++
+ # For building a shared library (--enable-shared)
+ %.lo: %.c
+ 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(DEFS) -fPIC -DPIC -o $@ $<
+@@ -91,20 +101,22 @@ EXTRAOBJECTS=@EXTRAOBJECTS@
+ 
+ clean:
+ 	rm -f wunzip wordlist.wgz shemp.dat \
+-	      corlist.o dict_radix.o find_sizes.o gimatria.o \
+-	      hspell.o tclHash.o hebrew.wgz hebrew.wgz.sizes \
+-	      hebrew.wgz.prefixes shemp.hif shemp.dat \
+-	      nouns.hif verbs.hif hspell find_sizes \
+-	      prefixes.c libhspell.o libhspell.a hspell.exe \
+-	      hebrew.wgz.desc hebrew.wgz.stems he_affix.dat \
+-	      he.wl mk_he_affix linginfo.o mk_he_affix.o \
+-	      hebrew.wgz.lingsizes.tmp dmask.c \
+-	      spell-he.xpi he.dic he.aff README-he.txt \
+-	      README_he_IL.txt he_IL.dic he_IL.aff he_IL.zip \
+-	      specfilter.o specfilter he.rws libhspell.so.0 libhspell.so \
+-	      dict_radix.lo gimatria.lo corlist.lo libhspell.lo linginfo.lo \
+-	      he.xpi misc/dictionaries/he.dic misc/dictionaries/he.aff \
+-	      misc/dictionaries/license.txt misc/dictionaries/README-he.txt
++              corlist.o dict_radix.o find_sizes.o gimatria.o \
++              hspell.o tclHash.o hebrew.wgz hebrew.wgz.sizes \
++              hebrew.wgz.prefixes shemp.hif shemp.dat \
++              nouns.hif verbs.hif hspell find_sizes \
++              prefixes.c libhspell.o libhspell.a hspell.exe \
++              hebrew.wgz.desc hebrew.wgz.stems he_affix.dat \
++              he.wl mk_he_affix linginfo.o mk_he_affix.o \
++              mk_he_affix.build.o specfilter.build.o \
++              find_sizes.build.o dict_radix.build.o \
++              hebrew.wgz.lingsizes.tmp dmask.c \
++              spell-he.xpi he.dic he.aff README-he.txt \
++              README_he_IL.txt he_IL.dic he_IL.aff he_IL.zip \
++              specfilter.o specfilter he.rws libhspell.so.0 libhspell.so \
++              dict_radix.lo gimatria.lo corlist.lo libhspell.lo linginfo.lo \
++              he.xpi misc/dictionaries/he.dic misc/dictionaries/he.aff \
++              misc/dictionaries/license.txt misc/dictionaries/README-he.txt
+ 
+ distclean: clean
+ 	rm -f Makefile config.log config.status
+@@ -159,7 +171,7 @@ DISTFILES = COPYING INSTALL LICENSE README WHATSNEW \
+ 	hspell.h libhspell.c gzbuffered.h \
+ 	pmerge PrefixBits.pl genprefixes.pl \
+ 	hash.h tclHash.c tclHash.h \
+-        binarize-desc.pl pack-desc.pl linginfo.c linginfo.h \
++	binarize-desc.pl pack-desc.pl linginfo.c linginfo.h \
+ 	multispell hspell.3 mk_he_affix.c configure.in configure \
+ 	misc/install.rdf.pre specfilter.c \
+ 	doc/niqqudless.odt test/test1 test/test1.dat
+@@ -173,15 +185,15 @@ distdir:
+ 	#cp -a $(DISTFILES) $(DISTDIR)
+ # Note that Oron Peled suggested a more eleborate version that makes hard
+ # links instead of copies:
+-#	for file in $(DISTFILES); do \
+-#		if test -d $$file; then \
+-#			cp -pr $$file $(distdir)/$$file; \
+-#		else \
+-#			test -f $(distdir)/$$file \
+-#			|| ln $$file $(distdir)/$$file 2> /dev/null \
+-#			|| cp -p $$file $(distdir)/$$file || :; \
+-#		fi; \
+-#	done
++#       for file in $(DISTFILES); do \
++#               if test -d $$file; then \
++#                       cp -pr $$file $(distdir)/$$file; \
++#               else \
++#                       test -f $(distdir)/$$file \
++#                       || ln $$file $(distdir)/$$file 2> /dev/null \
++#                       || cp -p $$file $(distdir)/$$file || :; \
++#               fi; \
++#       done
+ 
+ dist: distdir
+ 	tar zcvf $(DISTDIR).tar.gz $(DISTDIR)
+@@ -220,8 +232,13 @@ libhspell.lo: prefixes.c
+ prefixes.c: genprefixes.pl PrefixBits.pl
+ 	$(PERL) -w ./genprefixes.pl >prefixes.c
+ 
+-find_sizes: find_sizes.o dict_radix.o
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o find_sizes find_sizes.o dict_radix.o $(LIBS)
++# find_sizes executes on the build host during dictionary generation.
++find_sizes.build.o: dict_radix.h
++
++dict_radix.build.o: dict_radix.h gzbuffered.h
++
++find_sizes: find_sizes.build.o dict_radix.build.o
++	$(BUILD_CC) $(BUILD_LDFLAGS) -o $@ $^ $(LIBS)
+ 
+ # *.hif, "hspell inflection format" files, list all the possible inflections
+ # and information on how each word was derived. Some are the outputs of the
+@@ -277,10 +294,10 @@ hebrew.wgz.stems: binarize-desc.pl PrefixBits.pl pack-desc.pl $(HIFS) find_sizes
+ 	for hif in $(HIFS); do \
+ 	cat $$hif; echo ---; done | \
+ 	$(PERL) binarize-desc.pl | \
+-		sort -u | $(PERL) pack-desc.pl -p hebrew.wgz.prefixes.tmp \
+-		-d hebrew.wgz.desc.tmp -s hebrew.wgz.stems.tmp \
+-		-l hebrew.wgz.lingsizes.tmp | \
+-		./wzip | gzip -9n > hebrew.wgz
++                sort -u | $(PERL) pack-desc.pl -p hebrew.wgz.prefixes.tmp \
++                -d hebrew.wgz.desc.tmp -s hebrew.wgz.stems.tmp \
++                -l hebrew.wgz.lingsizes.tmp | \
++                ./wzip | gzip -9n > hebrew.wgz
+ 	gzip -dc hebrew.wgz | ./find_sizes >hebrew.wgz.sizes
+ 	cat hebrew.wgz.lingsizes.tmp >> hebrew.wgz.sizes
+ 	-rm -f hebrew.wgz.lingsizes.tmp
+@@ -301,7 +318,19 @@ hebrew.wgz.desc hebrew.wgz.lingsizes.tmp dmask.c: hebrew.wgz.stems
+ # necessary for building the native Hspell spell-checker.
+ ############################################################################
+ 
+-mk_he_affix.o: prefixes.c hspell.h
++# Hunspell/Aspell conversion uses native generators, not target programs.
++mk_he_affix.build.o: prefixes.c hspell.h
++
++mk_he_affix: mk_he_affix.build.o
++	$(BUILD_CC) $(BUILD_LDFLAGS) -o $@ $^
++
++specfilter.build.o: prefixes.c
++
++specfilter: specfilter.build.o
++	$(BUILD_CC) $(BUILD_LDFLAGS) -o $@ $^
++
++wunzip: wunzip.c
++	$(BUILD_CC) $(BUILD_CFLAGS) $(BUILD_CPPFLAGS) $(DEFS) $(BUILD_LDFLAGS) -o $@ $<
+ 
+ # The "he_affix.dat" and "he.wl" files are the two files basic files which
+ # together form an Aspell 0.6 dictionary.
+-- 
+2.55.0
+

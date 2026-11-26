@@ -18,6 +18,3 @@ DEPENDS:append = " \
 PACKAGECONFIG[qt6] = "-DBUILD_WITH_QT6=ON, -DBUILD_WITH_QT6=OFF"
 PACKAGECONFIG:append = " qt6"
 
-
-
-

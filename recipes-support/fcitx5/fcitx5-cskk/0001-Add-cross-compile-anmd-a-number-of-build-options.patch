@@ -1,0 +1,173 @@
+From e9a07a40c953a7f438d2cfe105b9c4c4c9a12ec3 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Tue, 24 Nov 2026 16:28:05 -0600
+Subject: [PATCH] Add cross compile anmd a number of build options
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt      | 74 ++++++++++++++++++++++++++++-----------------
+ test/CMakeLists.txt | 32 +++++++++++---------
+ 2 files changed, 63 insertions(+), 43 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2d02f56..18b565c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
+ cmake_policy(SET CMP0063 NEW)
+ project(fcitx5-cskk VERSION 1.2.0)
+ set(REQUIRED_FCITX_VERSION 5.1.7)
+-set(CMAKE_CXX_FLAGS "-Wall")
++#set(CMAKE_CXX_FLAGS "-Wall")
+ set(CMAKE_CXX_STANDARD 17)
+ IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+     SET(CMAKE_INSTALL_PREFIX /usr CACHE PATH "Install directory for non-fcitx path stuffs" FORCE)
+@@ -11,8 +11,15 @@ message ("CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+ 
+ find_package(ECM 1.0.0 REQUIRED)
+ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
++
+ option(ENABLE_QT "Enable Qt for GUI configuration" On)
+ option(USE_QT6 "Build against Qt6" On)
++
++option(BUILD_TESTS "Build the unit tests" ON)
++option(USE_STSTEM_GTEST "Use the sytems googletest and not the submodule" OFF)
++
++option(BUILD_DEB "Try to build the debian package using cmakes packge generator" ON)
++
+ include(FeatureSummary)
+ include(GNUInstallDirs)
+ include(ECMUninstallTarget)
+@@ -27,7 +34,11 @@ find_package(Fcitx5Utils ${REQUIRED_FCITX_VERSION} REQUIRED)
+ # GITHUB_ACTION_BUILD_CSKK_VERSION=3.2.1
+ pkg_check_modules(LIBCSKK REQUIRED IMPORTED_TARGET "cskk>=3.0")
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+ # GUI related libs
+ if (ENABLE_QT)
+@@ -49,29 +60,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/skk_dict_config.h.in"
+         IMMEDIATE @ONLY)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+-# Googletest submodule setup
+-find_package(Git QUIET)
+-if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+-    enable_testing()
+-    option(GOOGLETEST "Check Google Test during build" OFF)
+-    # -DGOOGLETEST=on を付けて実行したらsubmoduleを最新版にする
+-    if (GOOGLETEST)
+-        message(STATUS "Submodule update")
+-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-                RESULT_VARIABLE GIT_SUBMOD_RESULT)
+-        if (NOT GIT_SUBMOD_RESULT EQUAL "0")
+-            message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+-        endif ()
+-    endif ()
+-endif ()
+-
+-# Currently test doesn't exist, so turning off.
+-#if (NOT EXISTS "${PROJECT_SOURCE_DIR}/third_party/googletest/CMakeLists.txt")
+-#    message(FATAL_ERROR "The submodules were not downloaded! GOOGLETEST was turned off or failed. Please update submodules (git submodules update --init --recurseive) and try again.")
+-#endif ()
+-
+-
+ # Not sure what this does. Need translation?
+ find_package(Gettext REQUIRED)
+ add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-cskk\" -D_GNU_SOURCE)
+@@ -83,8 +71,36 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+ add_subdirectory(src)
+ add_subdirectory(data)
+ add_subdirectory(po)
+-add_subdirectory(test)
+-add_subdirectory(gui)
++
++if(BUILD_TESTS)
++    enable_testing()
++    if(USE_SYSTEM_GTEST)
++	pkg_check_modules(GTEST REQUIRED IMPORTED_TARGET gtest)
++        add_library(gtest ALIAS PkgConfig::GTEST)
++    else()
++
++        find_package(Git QUIET)
++        if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
++            option(GOOGLETEST "Check Google Test during build" OFF)
++            # -DGOOGLETEST=on を付けて実行したらsubmoduleを最新版にする
++            if (GOOGLETEST)
++                message(STATUS "Submodule update")
++                execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
++                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
++                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
++                if (NOT GIT_SUBMOD_RESULT EQUAL "0")
++                    message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
++                endif ()
++            endif()
++       endif ()
++    endif()
++
++    add_subdirectory(test)
++endif()
++
++if(ENABLE_QT)
++    add_subdirectory(gui)
++endif()
+ 
+ # This is a system file so it's OK to install in CMAKE_INSTALL_DATADIR
+ fcitx5_translate_desktop_file(
+@@ -94,4 +110,6 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/org.fcitx.Fcitx5.Addon.Cskk.metainfo.
+ 
+ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+ 
+-include(DebPack)
++if(BUILD_DEB)
++    include(DebPack)
++endif()
+diff --git a/test/CMakeLists.txt b/test/CMakeLists.txt
+index 37b83c0..6128d8f 100644
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -1,17 +1,19 @@
+-if (GOOGLETEST)
+-    message("Setting up test")
+-    add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/googletest ${PROJECT_SOURCE_DIR}/third_party/googletest/build)
+-    enable_testing()
+-    add_executable(runTest ${PROJECT_SOURCE_DIR}/test/main.cpp ${PROJECT_SOURCE_DIR}/test/basic_test.cpp)
+-
+-    target_include_directories(
+-            runTest PUBLIC
+-            ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include
+-    )
+-    target_link_libraries(
+-            runTest
+-            gtest
++message("Setting up test")
++if(NOT USE_SYSTEM_GTEST)
++    add_subdirectory(
++        ${PROJECT_SOURCE_DIR}/third_party/googletest
++        ${PROJECT_BINARY_DIR}/third_party/googletest
+     )
++endif()
++
++add_executable(runTest
++    ${PROJECT_SOURCE_DIR}/test/main.cpp
++    ${PROJECT_SOURCE_DIR}/test/basic_test.cpp
++)
+ 
+-    add_test(NAME runTest COMMAND runTest)
+-endif ()
+\ No newline at end of file
++target_include_directories(runTest
++    PUBLIC
++      ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include
++)
++target_link_libraries(runTest gtest)
++add_test(NAME runTest COMMAND runTest)
+-- 
+2.55.0
+

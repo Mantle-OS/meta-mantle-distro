@@ -1,0 +1,40 @@
+From 7f46b8f17c6004dae59eef4e177871d252497272 Mon Sep 17 00:00:00 2001
+From: JosephMillsAtWork <josephjamesmills@gmail.com>
+Date: Sat, 27 Sep 2025 22:49:05 +0000
+Subject: [PATCH] add absl for yocto build
+
+Signed-off-by: JosephMillsAtWork <josephjamesmills@gmail.com>
+
+Upstream-Status: Inappropriate [OE-specific]
+---
+ tools/cpp/CMakeLists.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/tools/cpp/CMakeLists.txt b/tools/cpp/CMakeLists.txt
+index 314d91cf6..ddaf2cb4c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -16,7 +16,11 @@
+ 
+ cmake_minimum_required (VERSION 3.11)
+ 
+-project (generate_geocoding_data)
++project (generate_geocoding_data LANGUAGES C CXX)
++cmake_policy(SET CMP0074 NEW)
++find_package(absl CONFIG REQUIRED)
++find_package(Threads)
++include(GNUInstallDirs)
+ 
+ set (
+   SOURCES
+@@ -32,6 +36,7 @@ include_directories ("src")
+ 
+ add_executable (generate_geocoding_data ${SOURCES})
+ target_link_libraries (generate_geocoding_data absl::strings absl::btree absl::node_hash_set)
++install(TARGETS generate_geocoding_data DESTINATION ${CMAKE_INSTALL_BINDIR})
+ 
+ if (BUILD_TESTING)
+   set (TEST_SOURCES
+-- 
+2.51.0
+

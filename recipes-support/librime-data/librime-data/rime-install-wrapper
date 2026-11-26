@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+PLUM_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/rime-plum"
+
+if [ ! -f "${PLUM_DIR}/rime-install" ]; then
+    mkdir -p "${PLUM_DIR}"
+    cp -R /usr/share/rime-plum/. "${PLUM_DIR}/"
+fi
+
+exec "${PLUM_DIR}/rime-install" "$@"

@@ -1,0 +1,31 @@
+From aa073951285a2a51c88a53a2cdd9be2898f07661 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 22 Nov 2026 18:20:30 -0600
+Subject: [PATCH] cmake: use native LibIME tabledict when cross-compiling
+
+Upstream-Status: Pending
+---
+ tables/CMakeLists.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/tables/CMakeLists.txt b/tables/CMakeLists.txt
+index f1449b5..37a4add 100644
+--- a/tables/CMakeLists.txt
++++ b/tables/CMakeLists.txt
+@@ -43,6 +43,13 @@ endif()
+ set(MB_FILES)
+ set(CONF_FILES)
+ 
++if(CMAKE_CROSSCOMPILING)
++    if(NOT LIBIME_NATIVE_BINDIR)
++        message(FATAL_ERROR "LIBIME_NATIVE_BINDIR must be set when cross-compiling")
++    endif()
++    set_target_properties(LibIME::tabledict PROPERTIES IMPORTED_LOCATION "${LIBIME_NATIVE_BINDIR}/libime_tabledict")
++endif()
++
+ foreach(table ${TABLE_NAMES})
+   get_filename_component(table_name "${table}" NAME)
+   fcitx5_translate_desktop_file("${table}.conf.in" "${table_name}.conf")
+-- 
+2.55.0
+

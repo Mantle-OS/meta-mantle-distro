@@ -5,6 +5,8 @@ LICENSE = "MIT"
 inherit features_check
 require mantle-image-full.bb
 
+REQUIRED_DISTRO_FEATURES = "x11 wayland"
+
 IMAGE_FEATURES += " \
     splash \
     ssh-server-openssh \

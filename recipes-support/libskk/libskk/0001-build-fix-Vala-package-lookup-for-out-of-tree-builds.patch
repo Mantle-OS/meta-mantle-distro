@@ -1,0 +1,64 @@
+From 9998a081ddc23def8f0b23038fca6236c8f0d37d Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 09:48:18 -0600
+Subject: [PATCH] build: fix Vala package lookup for out-of-tree builds
+
+Upstream-Status: Pending
+---
+ libskk/Makefile.am | 4 ++--
+ tools/Makefile.am  | 7 +++++--
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/libskk/Makefile.am b/libskk/Makefile.am
+index 470563c..2454db7 100644
+--- a/libskk/Makefile.am
++++ b/libskk/Makefile.am
+@@ -24,7 +24,7 @@ libskk_la_VALAFLAGS =						\
+ 	-H libskk.h						\
+ 	--vapi skk-@SKK_API_VERSION@.vapi			\
+ 	-h libskk-internals.h					\
+-	--vapidir=.						\
++	--vapidir=$(srcdir)					\
+ 	--pkg config						\
+ 	--pkg glib-2.0						\
+ 	--pkg gio-2.0						\
+@@ -50,7 +50,7 @@ libskk_la_LDFLAGS =							\
+ 	$(CODE_COVERAGE_LDFLAGS)					\
+ 	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)"	\
+ 	-export-dynamic							\
+-	-export-symbols $(srcdir)/libskk.symbols			\
++	-export-symbols $(builddir)/libskk.symbols 			\
+ 	$(NULL)
+ 
+ libskkincludedir = $(includedir)/libskk
+diff --git a/tools/Makefile.am b/tools/Makefile.am
+index 492fba8..ae7ee03 100644
+--- a/tools/Makefile.am
++++ b/tools/Makefile.am
+@@ -20,10 +20,12 @@ AM_CPPFLAGS = -include $(CONFIG_HEADER)
+ bin_PROGRAMS = skk
+ 
+ skk_VALAFLAGS =					\
+-	--vapidir=$(top_srcdir)/libskk		\
++	--vapidir=$(top_builddir)/libskk 	\
++	--vapidir=$(top_srcdir)/libskk 		\
+ 	--vapidir=$(top_srcdir)/tools		\
+ 	--pkg config				\
+ 	--pkg skk-1.0				\
++	--pkg gee-0.8				\
+ 	$(VALAFLAGS)
+ 
+ skk_CFLAGS =					\
+@@ -41,7 +43,8 @@ dist_man_MANS = skk.1
+ if ENABLE_FEP
+ libexec_PROGRAMS = skkfep-client
+ skkfep_client_VALAFLAGS =			\
+-	--vapidir=$(top_srcdir)/libskk		\
++	--vapidir=$(top_builddir)/libskk 	\
++	--vapidir=$(top_srcdir)/libskk 		\
+ 	--vapidir=$(top_srcdir)/tools		\
+ 	--pkg config				\
+ 	--pkg skk-1.0				\
+-- 
+2.55.0
+

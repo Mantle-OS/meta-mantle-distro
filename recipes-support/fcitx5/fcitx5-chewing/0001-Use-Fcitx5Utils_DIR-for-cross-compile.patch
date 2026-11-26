@@ -1,0 +1,30 @@
+From dc751b73470314636f485f702bbe4848471ca0be Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 18:13:53 -0600
+Subject: [PATCH] Use Fcitx5Utils_DIR for cross compile
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5151e47..a996515 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,7 +22,11 @@ if (NOT DEFINED CHEWING_TARGET)
+     set(CHEWING_TARGET PkgConfig::Chewing)
+ endif()
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+ add_subdirectory(src)
+ add_subdirectory(data)
+-- 
+2.55.0
+

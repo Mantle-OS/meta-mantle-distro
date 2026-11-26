@@ -25,7 +25,6 @@ inherit java
 ## show how to link to another project
 DEPENDS:append = " hamcrest-native"
 
-#JAVA_SOURCES_JARS    = "${WORKDIR}/junit4-sources.jar"
 JAVA_ADDITIONAL_JARS = "${STAGING_DATADIR_NATIVE}/java/hamcrest.jar"
 JAVA_JAR_NAME        = "junit4.jar"
 

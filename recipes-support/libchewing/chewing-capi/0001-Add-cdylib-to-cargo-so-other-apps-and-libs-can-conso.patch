@@ -1,0 +1,26 @@
+From 459af4183964a08c354276c4cc13feb9cf811c52 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 17:29:29 -0600
+Subject: [PATCH] Add cdylib to cargo so other apps and libs can consome
+
+Upstream-Status: Pending
+---
+ capi/Cargo.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/capi/Cargo.toml b/capi/Cargo.toml
+index e87d4164..0629efb1 100644
+--- a/capi/Cargo.toml
++++ b/capi/Cargo.toml
+@@ -7,7 +7,7 @@ rust-version = "1.88"
+ edition = "2024"
+ 
+ [lib]
+-crate-type = ["rlib", "staticlib"]
++crate-type = ["cdylib", "rlib", "staticlib"]
+ 
+ [dependencies]
+ chewing = { version = "0.12.0", path = ".." }
+-- 
+2.55.0
+

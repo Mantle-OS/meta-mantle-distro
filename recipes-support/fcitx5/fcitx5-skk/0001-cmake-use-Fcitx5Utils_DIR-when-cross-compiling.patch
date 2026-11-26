@@ -1,0 +1,41 @@
+From 1e0b7200e625db926eb77189fb5f148339ef5069 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 11:03:05 -0600
+Subject: [PATCH] cmake: use Fcitx5Utils_DIR when cross-compiling
+
+Use the resolved Fcitx5Utils CMake package directory to locate
+Fcitx5CompilerSettings.cmake during cross-compilation.
+
+Preserve the original installation-based lookup for native builds
+to maintain backward compatibility.
+
+The native-build guard is intentionally retained for compatibility.
+Upstream maintainers may prefer an unconditional Fcitx5Utils_DIR
+lookup.
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ec158b3..e705e03 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,7 +22,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+ set(SKK_PATH "/usr/share/skk" CACHE STRING "Default path of SKK directory that contains SKK-JISYO.L, could start with \"\$XDG_DATA_DIRS\"")
+ if(NOT ("${SKK_DEFAULT_PATH}" STREQUAL ""))
+-- 
+2.55.0
+

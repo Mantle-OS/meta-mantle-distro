@@ -1,0 +1,76 @@
+From 7e1236cf1b667d9eaae2f0e2bbe10c4c141b7853 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Sun, 22 Nov 2026 13:56:11 -0600
+Subject: [PATCH] cmake: add optional tests and system GoogleTest support
+
+Allow tests to be disabled and use an externally provided GoogleTest instead of FetchContent when requested. This supports reproducible cross-compilation in OpenEmbedded.
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt       |  8 ++++++--
+ tests/CMakeLists.txt | 21 +++++++++++++--------
+ 2 files changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 55f1a6df..484035d8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -10,10 +10,14 @@ set(CMAKE_VERBOSE_MAKEFILE on)
+ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/project-defaults.cmake)
+ 
+ add_subdirectory(yoga)
+-add_subdirectory(tests)
+ 
+-option(BUILD_FUZZ_TESTS "Build fuzz tests" OFF)
++option(BUILD_TESTS "Build google tests" OFF)
++option(USE_SYSTEM_GTEST "use the systems google tests" OFF)
++if(BUILD_TESTS)
++    add_subdirectory(tests)
++endif()
+ 
++option(BUILD_FUZZ_TESTS "Build fuzz tests" OFF)
+ if ('${CMAKE_CXX_COMPILER_ID}' MATCHES 'Clang' AND  BUILD_FUZZ_TESTS)
+     add_subdirectory(fuzz)
+ endif()
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index c48bfb9f..3b7ffd15 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -8,21 +8,26 @@ cmake_minimum_required(VERSION 3.13...3.26)
+ project(tests)
+ set(CMAKE_VERBOSE_MAKEFILE on)
+ 
+-include(FetchContent)
+ include(GoogleTest)
+ 
+ set(YOGA_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
+ include(${YOGA_ROOT}/cmake/project-defaults.cmake)
+ 
+-# Fetch GTest
+-FetchContent_Declare(
+-  googletest
+-  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
+-)
+-FetchContent_MakeAvailable(googletest)
++if(USE_SYSTEM_GTEST)
++    find_package(GTest CONFIG REQUIRED)
++else()
++    include(FetchContent)
++
++    # Fetch GTest
++    FetchContent_Declare(
++      googletest
++      URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
++    )
++    FetchContent_MakeAvailable(googletest)
++endif()
+ 
+-add_subdirectory(${YOGA_ROOT}/yoga ${CMAKE_CURRENT_BINARY_DIR}/yoga)
+ 
++add_subdirectory(${YOGA_ROOT}/yoga ${CMAKE_CURRENT_BINARY_DIR}/yoga)
+ file(GLOB SOURCES CONFIGURE_DEPENDS
+     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
+-- 
+2.55.0
+

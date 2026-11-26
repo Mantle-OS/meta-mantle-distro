@@ -1,7 +1,13 @@
-SUMMARY = "marisa-trie"
-DESCIPTION = "MARISA: Matching Algorithm with Recursively Implemented StorAge"
+SUMMARY = "Space-efficient trie data structure and C++ library"
+DESCRIPTION = "MARISA (Matching Algorithm with Recursively Implemented StorAge) \
+is a compact, static trie data structure implemented in C++. It provides \
+efficient dictionary storage with support for key lookup, reverse lookup, \
+common prefix search, and predictive search."
+
+SECTION = "libs"
 HOMEPAGE = "https://github.com/s-yata/marisa-trie"
-LICENSE = "BSD-2-Clause | LGPL-2.1-or-later"
+
+LICENSE = "BSD-2-Clause OR LGPL-2.1-or-later"
 LIC_FILES_CHKSUM = " \
     file://COPYING.md;beginline=5;endline=15;md5=3baa7b0570fbf938dee6004b276102d9 \
     file://COPYING.md;beginline=17;endline=34;md5=28cbda254a47232a086345a5ca8e4c97 \
@@ -16,7 +22,6 @@ SRC_URI = " \
 
 SRCREV = "38180f6d3653cd2c88dd7047711e75f48f84527c"
 PV = "0.3.1"
-S = "${WORKDIR}/git"
 
 PACKAGECONFIG[shared] = " -DBUILD_SHARED_LIBS=ON, -DBUILD_SHARED_LIBS=OFF, "
 PACKAGECONFIG[march-native] = " -DENABLE_NATIVE_CODE=ON, -DENABLE_NATIVE_CODE=OFF, "

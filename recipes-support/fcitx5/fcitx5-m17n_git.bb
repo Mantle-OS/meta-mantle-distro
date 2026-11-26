@@ -4,7 +4,7 @@ SUMMARY = "M17N input method integration for Fcitx5"
 # FIXME: Verify the license file path and md5; let BitBake report the correct
 # checksum when the upstream file differs. A matching md5 is not license proof.
 LICENSE = "LGPL-2.1-or-later"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
+LIC_FILES_CHKSUM = "file://LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
 
 # FIXME: Confirm this is the appropriate shared include for fcitx5-m17n.
 # The include owns lower-level metadata; do not require fcitx5-git.inc again.

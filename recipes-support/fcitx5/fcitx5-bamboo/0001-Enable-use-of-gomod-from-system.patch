@@ -1,0 +1,63 @@
+From b368d0d3b464d3c9c1e68a6f7365179db03d7723 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 20:37:12 -0600
+Subject: [PATCH] Enable use of gomod from system
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt     | 20 +++++++++++++++++---
+ src/CMakeLists.txt |  2 +-
+ 2 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8417fea..1f9d387 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -12,14 +12,28 @@ include(ECMUninstallTarget)
+ find_package(Fcitx5Core ${REQUIRED_FCITX_VERSION} REQUIRED)
+ find_package(Fcitx5Module REQUIRED COMPONENTS TestFrontend)
+ find_package(Gettext REQUIRED)
+-find_package(Pthread REQUIRED)
++find_package(Threads REQUIRED)
++
++option(USE_SYSTEM_BAMBOO "Use prebuilt Bamboo Go library" OFF)
++if(CMAKE_CROSSCOMPILING)
++    include("${Fcitx5Utils_DIR}/Fcitx5CompilerSettings.cmake")
++else()
++    include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
++endif()
+ 
+-include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
+ add_definitions(-DFCITX_GETTEXT_DOMAIN=\"fcitx5-bamboo\")
+ fcitx5_add_i18n_definition()
+ 
+ add_subdirectory(po)
+-add_subdirectory(bamboo)
++
++if(USE_SYSTEM_BAMBOO)
++    find_package(PkgConfig REQUIRED)
++    pkg_check_modules(BAMBOO_CORE REQUIRED IMPORTED_TARGET bamboo-core)
++    add_library(Bamboo::Core ALIAS PkgConfig::BAMBOO_CORE)
++else()
++    add_subdirectory(bamboo)
++endif()
++
+ add_subdirectory(src)
+ add_subdirectory(data)
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index be40bce..834a0e0 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -4,7 +4,7 @@ set( fcitx_bamboo_sources
+ )
+ 
+ add_fcitx5_addon(bamboo ${fcitx_bamboo_sources})
+-target_link_libraries(bamboo Fcitx5::Core Fcitx5::Config Bamboo::Core Pthread::Pthread)
++target_link_libraries(bamboo Fcitx5::Core Fcitx5::Config Bamboo::Core Threads::Threads)
+ target_include_directories(bamboo PRIVATE ${PROJECT_BINARY_DIR})
+ install(TARGETS bamboo DESTINATION "${CMAKE_INSTALL_LIBDIR}/fcitx5")
+ fcitx5_translate_desktop_file(bamboo.conf.in bamboo.conf)
+-- 
+2.55.0
+

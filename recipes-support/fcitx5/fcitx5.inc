@@ -1,5 +1,4 @@
-# cmake_extra_sanity comes from mantle-office
-inherit cmake cmake_extra_sanity features_check
+inherit cmake cmake_extra_sanity features_check pkgconfig gettext
 require fcitx5-git.inc
 
 PACKAGECONFIG[shared]   = " -DBUILD_SHARED_LIBS=ON, -DBUILD_SHARED_LIBS=OFF, "
@@ -13,11 +12,10 @@ REQUIRED_DISTRO_FEATURES:class-native = ""
 ANY_OF_DISTRO_FEATURES = "x11 wayland"
 ANY_OF_DISTRO_FEATURES:class-native = ""
 
-S = "${WORKDIR}/git"
-
 DEPENDS:append = " \
     pkgconfig-native \
     ecm-kf6-native \
+    gettext-native \
 "
 
 PACKAGECONFIG:append:class-nativesdk = " ${PACKAGECONFIG:class-native}"

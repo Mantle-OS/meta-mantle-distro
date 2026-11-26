@@ -13,7 +13,7 @@ inherit cpan
 
 DEPENDS += "zlib"
 
-S = "${WORKDIR}/Archive-Zip-${PV}"
+S = "${UNPACKDIR}/Archive-Zip-${PV}"
 
 EXTRA_PERLFLAGS = "-I ${STAGING_LIBDIR_NATIVE}/perl-native/perl/${@get_perl_version(d)}"
 

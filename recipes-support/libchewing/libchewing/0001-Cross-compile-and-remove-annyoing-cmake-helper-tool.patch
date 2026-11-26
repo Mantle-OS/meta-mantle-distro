@@ -1,0 +1,117 @@
+From 5f18c7481bd33d71fcc9bbc1a2c2d527f83e4629 Mon Sep 17 00:00:00 2001
+From: jmills <josephjamesmills@gmail.com>
+Date: Mon, 23 Nov 2026 19:19:17 -0600
+Subject: [PATCH] Cross compile and remove annyoing cmake helper tool
+
+Upstream-Status: Pending
+---
+ CMakeLists.txt | 68 +++++++++++++++++---------------------------------
+ 1 file changed, 23 insertions(+), 45 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ac03e109..0f74698c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -63,47 +63,20 @@ option(WITH_SQLITE3 "Use sqlite3 to store userphrase" true)
+ # Use valgrind when testing
+ option(USE_VALGRIND "Use valgrind when testing" true)
+ 
+-find_package(Corrosion QUIET)
+-if(NOT Corrosion_FOUND)
+-    FetchContent_Declare(
+-        Corrosion
+-        GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+-        GIT_TAG b1fab721655c5c4b1b08a083d3cd29f163af75d0 # v0.5.1
+-        FIND_PACKAGE_ARGS
+-    )
+-    FetchContent_MakeAvailable(Corrosion)
+-endif()
+-
+-corrosion_import_crate(MANIFEST_PATH Cargo.toml CRATES chewing_capi)
+-if(BUILD_TESTING)
+-    corrosion_import_crate(MANIFEST_PATH Cargo.toml CRATES chewing_testhelper)
+-endif()
+-corrosion_import_crate(MANIFEST_PATH Cargo.toml CRATES chewing-cli)
+-
+-if(WITH_SQLITE3)
+-    corrosion_set_features(chewing_capi FEATURES sqlite)
+-    if(BUILD_TESTING)
+-        corrosion_set_features(chewing_testhelper FEATURES sqlite)
+-    endif()
+-    corrosion_set_features(chewing-cli FEATURES sqlite)
+-endif()
+-
+-if(ENABLE_GCOV)
+-    corrosion_set_env_vars(chewing_capi CARGO_INCREMENTAL=0)
+-    corrosion_add_target_local_rustflags(chewing_capi -Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort)
+-endif()
++include(FindPkgConfig)
++find_package(PkgConfig REQUIRED)
++pkg_check_modules(chewing_rust REQUIRED chewing_capi)
++
++find_library(CHEWING_RUST_STATIC_LIBRARY
++    NAMES libchewing_capi.a
++    PATHS ${chewing_rust_LIBRARY_DIRS}
++    REQUIRED
++)
+ 
+-if(CMAKE_SYSTEM MATCHES "Windows")
+-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+-    corrosion_add_target_rustflags(chewing_capi -Ctarget-feature=+crt-static)
+-    if(BUILD_TESTING)
+-        corrosion_add_target_rustflags(chewing_testhelper -Ctarget-feature=+crt-static)
+-    endif()
+-    corrosion_add_target_rustflags(chewing-cli -Ctarget-feature=+crt-static)
+-    if(VCPKG_TARGET_TRIPLET)
+-        corrosion_set_env_vars(chewing-cli VCPKGRS_TRIPLET=${VCPKG_TARGET_TRIPLET})
+-    endif()
+-endif()
++add_library(chewing_rust_static STATIC IMPORTED)
++set_target_properties(chewing_rust_static PROPERTIES
++    IMPORTED_LOCATION "${CHEWING_RUST_STATIC_LIBRARY}"
++)
+ 
+ # Feature probe
+ include(CheckTypeSize)
+@@ -167,8 +140,14 @@ set(ALL_INC
+     ${INC_DIR}/mod_aux.h
+ )
+ 
++set(CHEWING_CLI "chewing-cli" CACHE FILEPATH "Path to chewing-cli host tool")
++
+ if(NOT USE_SYSTEM_CHEWING_CLI)
+     set(CHEWING_CLI $<TARGET_FILE:chewing-cli>)
++else()
++    if(NOT EXISTS "${CHEWING_CLI}" OR IS_DIRECTORY "${CHEWING_CLI}")
++        message(FATAL_ERROR "CHEWING_CLI must point to a valid executable: ${CHEWING_CLI}")
++    endif()
+ endif()
+ 
+ if(BUILD_DOC)
+@@ -191,11 +170,10 @@ target_include_directories(libchewing
+         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/chewing>
+ )
+ 
+-corrosion_set_env_vars(chewing_capi
+-    CHEWING_DATADIR=${CMAKE_INSTALL_FULL_DATADIR}/libchewing
++target_link_libraries(libchewing PRIVATE
++    "$<LINK_LIBRARY:WHOLE_ARCHIVE,chewing_rust_static>"
+ )
+-target_link_libraries(libchewing PRIVATE chewing_capi)
+-target_link_libraries(chewing_capi INTERFACE ${SQLite3_LIBRARIES})
++
+ if(BUILD_SHARED_LIBS)
+     if(CMAKE_C_COMPILER_ID MATCHES GNU|^Clang)
+         target_link_options(libchewing
+@@ -262,7 +240,7 @@ if(BUILD_DATA)
+     )
+ endif()
+ 
+-install(IMPORTED_RUNTIME_ARTIFACTS chewing-cli DESTINATION ${CMAKE_INSTALL_BINDIR})
++# install(IMPORTED_RUNTIME_ARTIFACTS chewing-cli DESTINATION ${CMAKE_INSTALL_BINDIR})
+ 
+ # generate CMake Config files
+ include(CMakePackageConfigHelpers)
+-- 
+2.55.0
+

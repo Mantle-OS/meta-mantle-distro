@@ -1,19 +1,31 @@
-SUMMARY = "Thai input method integration for Fcitx5"
+DESCRIPTION = "Fcitx5 LibThai provides Thai language input method \
+integration using the LibThai library, supporting Thai character \
+processing, input validation, and word breaking."
 
-# FIXME: Placeholder license only. Verify the project's actual SPDX license.
-# FIXME: Verify the license file path and md5; let BitBake report the correct
-# checksum when the upstream file differs. A matching md5 is not license proof.
-LICENSE = "LGPL-2.1-or-later"
-LIC_FILES_CHKSUM = "file://${WORKDIR}/git/LICENSES/LGPL-2.1-or-later.txt;md5=2a4f4fd2128ea2f65047ee63fbca9f68"
+HOMEPAGE = "https://github.com/fcitx/fcitx5-libthai"
+SECTION = "inputmethods"
 
-# FIXME: Confirm this is the appropriate shared include for fcitx5-libthai.
-# The include owns lower-level metadata; do not require fcitx5-git.inc again.
+LICENSE = "GPL-2.0-or-later"
+LIC_FILES_CHKSUM = "file://LICENSES/GPL-2.0-or-later.txt;md5=fed54355545ffd980b814dab4a3b312c"
+
 require fcitx5.inc
 
-SRC_URI = "${FCITX5_LIBTHAI_SRC_URI}"
+SRC_URI = " \
+    ${FCITX5_LIBTHAI_SRC_URI} \
+    file://0001-Use-Fcitx5Utils_DIR-when-cross-compiling.patch \
+"
+
 SRCREV = "${FCITX5_LIBTHAI_SRCREV}"
 PV = "${FCITX5_LIBTHAI_PV}"
 
-# TODO: Verify upstream build dependencies and CMake options.
-# TODO: Inspect actual do_install image and assign FILES/package splits.
-# TODO: Add source patches only when demonstrated necessary.
+DEPENDS:append = " \
+    libthai \
+    fcitx5 \
+"
+
+FILES:${PN} += " \
+    ${libdir}/fcitx5/libthai.so \
+    ${datadir}/fcitx5/inputmethod/libthai.conf \
+    ${datadir}/fcitx5/addon/libthai.conf \
+    ${datadir}/metainfo/org.fcitx.Fcitx5.Addon.LibThai.metainfo.xml \
+"
